@@ -46,7 +46,7 @@
 % =========================================================================
 
 \graphicspath{
-	{pictures/}
+	{img/}
 }
 
 %%%
@@ -73,7 +73,53 @@
 
 \section{Introduction}
 
+
 \subsection{Motivation}
+Robotic applications are about to change many domains from the ground
+up. Especially autonomous systems could take over dangerous,
+exhausting and unpopular tasks and allow humans to do more satisfying
+tasks instead. Additionally, autonomous systems can be more efficient
+and scalable than solving the tasks by hand. Some progressive domains
+with autonomous robots are flying drones, which can map
+areas~\cite{auto-drones} or deliver
+packages~\cite{auto-delivery-drones}, autonomous cars, which take care
+of driving~\cite{auto-cars}, logistic robots, which store and grab
+goods in warehouses~\cite{kiva}, and domestic service robots, which
+can support old people and clean at home~\cite{athome}. All these
+domains have in common that the robots have to track objects in their
+environment, mostly for avoiding collisions, in the case of domestic
+service robot also to follow people for example. Often the reliability
+and precision of the tracking are limiting factors. An autonomous car,
+for example, can only drive fast if it is absolutely sure that it
+tracks all objects in the sorounding correctly and none of these
+objects could cause a collision.  This report mainly focuses on the
+domain of autonomous cars. Here, the autonomous system takes care of
+the time consuming driving task on the one hand and could help to
+reduce the amount of traffic deaths ($25,938$ in $2013$ in the
+EU~\cite{traffic-deaths}) on the other hand. In this domain it is
+especially important to estimate the speed of various nearby objects
+robustly and in real time. Figure~\ref{fig:objects} shows the three
+main classes of objects that have to be tracked, cars, bycicles, and
+pedestrians, in challenging situations. The method proposed in this
+report solves this task and performs better than previous approaches
+in the car domain.
+\begin{figure}
+  \label{fig:objects}
+  \subfigure[Cars on a highway]{%
+    \includegraphics[height=.3\linewidth]{highway}
+  }
+  \subfigure[A cyclist]{%
+    \includegraphics[height=.3\linewidth]{bicycle}
+  }
+  \subfigure[A pedestrian]{%
+    \includegraphics[height=.3\linewidth]{pedestrian}
+  }
+  
+  \caption{Various objects that have to be tracked in challenging
+    situations~\cite{held-website}}
+\end{figure}
+
+
 \subsection{Tracking}
 \subsection{Velocity and Pose Estimation}
 % +++++++++++++++++++++++++
