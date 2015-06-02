@@ -348,8 +348,30 @@ annealing the measurement model as the resolution increases.
 % +++++++++++++++++++++++++
 \section{Method}
 \label{sec:method}
+The method presented in this report consists of three major
+parts. Subsection~\ref{sub:probabilistic-model} introduces the
+probabilistic model based on a Dynamic Bayesian Network. The model is
+necessaryto determine how likely it is that a specific position and
+velocity of a detected object couses the observed
+measurement. Subsection~\ref{sub:adh} describes how annealed dynamic
+histograms are used to search the state space for the most likely
+position and velocity according to the measurement model. For that
+especially the refinement steps, that increase the resolution, and the
+anealing of the measurement model depending on the resolution are
+important. In Subsection~\ref{sub:adding-color} the extension of the
+measurement model by color is shown~\cite{paper}.
+
 \subsection{Probabilistic Model}
 \label{sub:probabilistic-model}
+To derive the probability for a position and velocity to cause the
+observed measurement seen in the last frames, we use a Bayesian
+Network. After encoding the influences of the states, consisting of
+position and velocity, the surface of the object to track and the
+observed measurement, we can derive the wanted probability of the
+measurement given the state by apllying well known probability rules
+in Bayesian Networks. \textcolor{red}{find cite/maybe ai modern}
+ \textcolor{red}{Why DYNAMIC Bayes Net}
+
 \subsection{Annealed Dynamic Histograms}
 \label{sub:adh}
 \subsection{Adding Color}
