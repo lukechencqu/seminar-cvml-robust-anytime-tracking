@@ -72,6 +72,7 @@
 % =========================================================================
 
 \section{Introduction}
+\label{sec:intro}
 Robust and precise position and velocity estimation is an important
 part of object tracking. It is an essential part in the collision
 avaidance of an autonomous car, for example. This report presents a
@@ -91,6 +92,7 @@ models build with the tracking results is used as evaluation criteria.
 
 
 \subsection{Motivation}
+\label{sub:motivation}
 Robotic applications are about to change many domains from the ground
 up. Especially autonomous systems could take over dangerous,
 exhausting and unpopular tasks and allow humans to do more satisfying
@@ -137,6 +139,7 @@ in the car domain.
 
 
 \subsection{Tracking}
+\label{sub:tracking}
 Object tracking is the complex task to identify objects and their
 movement over time. It can be seperated into the following parts. The
 first step segments the sensor data for time $t$, called
@@ -173,25 +176,71 @@ sensor provides a camera image similar to a panorama.
 \end{figure}
 
 \subsection{Velocity and Pose Estimation}
+\label{sub:vel-and-pos-estimation}
+To compute the pose and velocity estimation of an object, we first
+introduce a measurement model that is derived from a Dynamic Bayesian
+Network (\textit{DBN}). This DBN models for each frame the
+dependencies between position, velocity, object surface and the
+observed measurement as well as the dependencies between two
+frames. This model uses shape and motion. Though tracking is a hard
+problem because in cases with occlusion and major changes in the
+viewpoint the visible object surface can differ significantly and
+introduce an error. Especially in these cases, it is intuitive to also
+consider color in the measurement model because the additional
+information is influenced less by occlusion and viewpoint changes.
+
+To find the state, which is composed of position and velocity of an
+object, we use a histogram that maps the each histogram-chunk in the
+state space to the probability that this chunk causes the measurement
+according to our model. This allows a global search in the state space
+with multiple hypothesis. A standard histogram with adequate
+resolution would have to many chunks and thus would be to slow for
+real time computation. Therefore, we use a dynamic histogram that
+starts with a low resolution and an approximated posterior
+distribution. Thenit dynamically increases the resolution in areas
+with high probability to cause the measurement. This allows to achive
+a result after running the method for any time. The downside of the
+dynamic histogram is that the initial low resolution introduces an
+additional error. This can be balanced by including the resolution in
+the measurement model. We call this method \textit{annealed dynamic
+  histogram} because as the resolution increases, the distribution is
+annealed and approaches the true posterior.
+
+The evaluation in Section~\ref{sec:evaluation} shows that the method
+outperforms other tracking methods by about $10\%$.
+\textcolor{red}{Maybe add more evaluation intro?}
+
 % +++++++++++++++++++++++++
 \section{Related Work}
+\label{sec:related-work}
 \subsection{Trajectory Classification}
+\label{sub:trajectory-classification}
 \subsection{Grid-Based Methods}
+\label{sub:grid-based-methods}
 \subsection{Alternative Sensors}
+\label{sub:slternative-sensors}
 
 % +++++++++++++++++++++++++
 \section{Method}
+\label{sec:method}
 \subsection{Probabilistic Model}
+\label{sub:probabilistic-model}
 \subsection{Annealed Dynamic Histograms}
+\label{sub:adh}
 \subsection{Adding Color}
+\label{sub:adding-color}
 
 % +++++++++++++++++++++++++
 \section{Evaluation}
+\label{sec:evaluation}
 \subsection{Relative Reference Frame}
+\label{sub:relative-ref-frame}
 \subsection{Model Crispness}
+\label{sub:model-crispness}
 
 % +++++++++++++++++++++++++
 \section{Conclusion}
+\label{sec:conclusion}
 
 
 % =========================================================================
