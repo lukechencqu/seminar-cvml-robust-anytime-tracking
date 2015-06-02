@@ -197,7 +197,7 @@ with multiple hypothesis. A standard histogram with adequate
 resolution would have to many chunks and thus would be to slow for
 real time computation. Therefore, we use a dynamic histogram that
 starts with a low resolution and an approximated posterior
-distribution. Thenit dynamically increases the resolution in areas
+distribution. Then it dynamically increases the resolution in areas
 with high probability to cause the measurement. This allows to achive
 a result after running the method for any time. The downside of the
 dynamic histogram is that the initial low resolution introduces an
@@ -310,19 +310,40 @@ of missing depth information.
 
 \subsection{Grid-Based Methods}
 \label{sub:grid-based-methods}
+Ordinary grid-based search approaches in computer vision are used to
+globally search in a state space and allow multiple hypothesis in
+contrast to Kalman filters and ICP. However, the computationally
+effort increases with the resolution of the grid and therefore
+ordinary histograms are often inadequate for real time computation.
+Dynamic histograms tackle this problem by starting with a low
+resolution and increasing the resolution in important areas. However,
+this creates the problem that the low resolution introduces an
+additional error.
+
 There are some alternative grid-based approaches to annealed dynamic
 histograms. Most of them are used in Simultaneous Localization and
 Mapping (\textit{SLAM}). \cite{multi-res-grid-slam2} uses a grid-based
-Monte-Carlo method that recursively expands the grid cells with the most
-hypotheses and refines the grid resolution in these cells. This only
-differs from annealed dynamic histograms in the usage of a Monte-Carlo
-distribution instead of probabilities to cause the current
+Monte-Carlo method that recursively expands the grid cells with the
+most hypotheses and refines the grid resolution in these cells. This
+only differs from annealed dynamic histograms in the usage of a
+Monte-Carlo distribution instead of probabilities to cause the current
 measurement. The approach presented in~\cite{multi-res-grid-slam}
 self-localizes a robot with a dynamically refined grid. Here each
 measurement point votes for the cells that could have caused the
 measurement. The cells with the most votes are refined in the next
 iteration. Similary to the paper presented in this report, the
 approach enables anytime computation.
+
+The main differences between previous methods and the method presented
+in this report are the additional consideration of color, what is not
+directly possible in Kalman filter or ICP approaches, and the
+consideration of the probabilities for points beeing occluded in
+previous frames. This leads to higher tracking
+robustness. Furthermore, annealed dynamic histograms allow globally
+searching the state space, multiple hypotheses. In contrast to other
+grid-based approaches, it also allows realtime computation without
+introducing a high error resulting from low resolution by
+annealing the measurement model as the resolution increases.
 
 % +++++++++++++++++++++++++
 \section{Method}
