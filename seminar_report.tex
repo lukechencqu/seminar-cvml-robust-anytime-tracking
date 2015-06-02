@@ -213,12 +213,83 @@ outperforms other tracking methods by about $10\%$.
 % +++++++++++++++++++++++++
 \section{Related Work}
 \label{sec:related-work}
-\subsection{Trajectory Classification}
-\label{sub:trajectory-classification}
-\subsection{Grid-Based Methods}
-\label{sub:grid-based-methods}
+The tracking problem has been studied for many years. The most common
+approaches to estimate the position and velocity of tracked objects,
+namely Kalman filters and Iterative Closest Point,
+are described in subsection~\ref{sub:pos-vel-est-alt}. Often these
+approaches are efficient but sacrifice a lot of the available data by
+using simple representations or search only for local maxima.
+Because
+our case of tracking objects in 3D point clouds from a laser sensor is
+only a special case of tracking,
+subsection~\ref{sub:slternative-sensors} gives an overview of the
+tracking approaches with other sensors, mainly single cameras and
+stereo cameras.
+Subsection~\ref{sub:grid-based-methods} presents
+grid-based approaches that are similar to annealed dynamic histograms.
+
+\subsection{Position and velocity estimation alternatives}
+\label{sub:pos-vel-est-alt}
+A simple approach to estimate position and velocity of a tracked
+object first represent the object by its
+centroid~\cite{kalman-centroid, towards-aut-cars} or bounding
+box~\cite{kalman-bounding-box, kalman-bounding-box2,
+  kalman-bounding-box3} and then use a Kalman
+filter~\cite{ai-modern}. This is a computationally efficient approach
+but discards a lot of available information by using such a simple
+representation. Therefore this approach is especially fragile in cases
+of occlusion and viewpoint changes. In the occlusion case, the
+bounding box can contain only a part of the object and the centroind
+would be shifted. In the viewpoint-change case the centroid and
+bounding box can significantly differ (e.g. when seeing a cyclist from
+the back and the side). Another disadvantage of the Kalman filter is
+that it can only represent a single hypothesis and thus performs
+poorly when multiple hypotheses are reasonable.
+
+Other approaches include domain specific knowledge to use better
+fitting object representations. For example the typical shape of a car
+with its corners or wheels could be use to achieve a more precise
+position of an objet in a frame~\cite{use-car-shape, use-car-shape2,
+  use-car-shape3}. This provides better detection and association
+results but is limited by the amount of trained
+object-classes. Although cars, pedestrians and cyclists are the most
+common classes it is also important to detect uncommon obstacles in
+traffic (e.g. tractors, segways, and wheelchairs). The work presented
+in this report is based on~\cite{arbitrary-object-recognition}. It
+allows recognition and classification of arbitrary objects and only
+reuires a labled dataset to train the object-class.
+
+A widely used alternative to Kalman filters is the Iterative Closest
+Point (ICP) algorithm~\cite{icp, icp2}. The algorithm aligns merges
+two point clouds by finding a maximum correspondence
+alignment. Therefore the full 3D point cloud is used. It
+uses a hill climbing approach and therefore depends on a good
+initialization and can get stuck in local maxima. This is the major
+limitation of ICP and has a large impact on the tracking precision as
+shown by~\cite{icp-bad, icp-bad2}. Figure~\ref{fig:icp} visualizes how
+ICP can return a wrong alignent after an unlucky initialization.
+\begin{figure}
+  \label{fig:icp}
+  \center
+  \subfigure[Bad initial alignment]{%
+    \includegraphics[height=.28\linewidth]{icp-init}
+  }
+  \subfigure[Stuck in a local maximum after 3 iterations
+  (green arrows)]{%
+    \includegraphics[height=.28\linewidth]{icp-stuck}
+  }
+  
+  \caption{Possible case for bad ICP alignment results. The two point
+    clouds belong a detected car in successive frames~\cite{held-website}.}
+\end{figure}
+The approach presented in this report performs a global search and
+therefore has no problem with local maxima.
+
 \subsection{Alternative Sensors}
 \label{sub:slternative-sensors}
+
+\subsection{Grid-Based Methods}
+\label{sub:grid-based-methods}
 
 % +++++++++++++++++++++++++
 \section{Method}
