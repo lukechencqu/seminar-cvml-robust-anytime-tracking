@@ -257,7 +257,11 @@ common classes it is also important to detect uncommon obstacles in
 traffic (e.g. tractors, segways, and wheelchairs). The work presented
 in this report is based on~\cite{arbitrary-object-recognition}. It
 allows recognition and classification of arbitrary objects and only
-reuires a labled dataset to train the object-class.
+requires a labled dataset to train the object-class. Another approach
+that can track known objects as well as fully unknown objects
+is~\cite{leibe-tracking-before-detection}. This approach differs from
+the previous ones by performing the tracking before the detection
+step what also enables it to track unknown objects.
 
 A widely used alternative to Kalman filters is the Iterative Closest
 Point (ICP) algorithm~\cite{icp, icp2}. The algorithm aligns merges
@@ -287,9 +291,38 @@ therefore has no problem with local maxima.
 
 \subsection{Alternative Sensors}
 \label{sub:slternative-sensors}
+Laser range sensors, such as the one shown in Figure~\ref{fig:lidar},
+are not the only kind of sensors used for tracking tasks. Although
+laser range sensors provide more precise data compared to other
+sensors used for tracking, they are inadequate
+for many applications because of their high price. the closest
+alternative to laser range sensors is the usage of stereo
+cameras. They provide the same kind of data (point clouds and images)
+and are cheap. However, they have more noise then a laser sensor and
+can therefore cause larger errors in the tracing results. An example
+for the use of stereo data for tracking
+is~\cite{leibe-tracking-before-detection}. It uses ICP to track
+pedestrians and unknown objects. Object tracking with a single camera
+has been studied for a long time and is used in many apprication,
+e.g. in video calling~\cite{single-camera-tracking}. However, single
+camera tracking is unsuitable in the autonomous car scenario because
+of missing depth information.
 
 \subsection{Grid-Based Methods}
 \label{sub:grid-based-methods}
+There are some alternative grid-based approaches to annealed dynamic
+histograms. Most of them are used in Simultaneous Localization and
+Mapping (\textit{SLAM}). \cite{multi-res-grid-slam2} uses a grid-based
+Monte-Carlo method that recursively expands the grid cells with the most
+hypotheses and refines the grid resolution in these cells. This only
+differs from annealed dynamic histograms in the usage of a Monte-Carlo
+distribution instead of probabilities to cause the current
+measurement. The approach presented in~\cite{multi-res-grid-slam}
+self-localizes a robot with a dynamically refined grid. Here each
+measurement point votes for the cells that could have caused the
+measurement. The cells with the most votes are refined in the next
+iteration. Similary to the paper presented in this report, the
+approach enables anytime computation.
 
 % +++++++++++++++++++++++++
 \section{Method}
