@@ -17,6 +17,7 @@
 \usepackage{t1enc}		% german letters in the "\hyphenation" - command
 \usepackage{latexsym}	% math symbols
 \usepackage{amssymb}    % AMS symbol fonts for LaTeX.
+\usepackage{amsmath}
 
 \usepackage{graphicx}
 \usepackage{pslatex}
@@ -433,7 +434,10 @@ $p(s_{t})=\Pi_i p(s_{t,i})$.
 \begin{wrapfigure}{r}{0.4\linewidth}
   \center
   \includegraphics[width=\linewidth]{surface-measurement}
-  \caption{~\cite{paper}.}
+  \caption{Measurement points $z_t$ sampled with sensor noise
+    $\Sigma_e$ from surface points $s_t$. The visible surface, from which the
+    surface points are sampled, varies from frame to frame due to
+    occlusion and viewpoint changes~\cite{paper}.}
   \label{fig:surface-measurement}
 \end{wrapfigure}
 
@@ -443,14 +447,92 @@ surface $s_t$ and the position $x_{t,p}$. However, the measurement
 points do not lie directly on the surface as illustrated in
 Figure~\ref{fig:surface-measurement}. This is caused by the sensor
 noise, which depends on the sensor resolution and is modeled as
-Gaussian noise $\Sigma_e$.
+Gaussian noise $\Sigma_e$. The sensor resolution can be modeled as a
+roughly linear function of the distance between object and sensor. The
+generation of measurement points $z_t$ depending on the surface points
+$s_t$, the sensor noise $\Sigma_e$ and the position can be written as
+\begin{equation}
+z_{t,i} \sim \mathcal{N}(s_{t,i},\Sigma_e) + x_{t,p} \mbox{ . }
+\end{equation}
+Because the origin of the coordinate system is placed at the centroid
+of the object in the previous frame, the measurements of the previous
+frame are not shifted
+\begin{equation}
+z_{t-1,i} \sim \mathcal{N}(s_{t-1,i},\Sigma_e) \mbox{ . }
+\end{equation}
+Therefore $z_{t-1}$ is conditionally independent from $x_{t-1}$ what
+is not derivable by just using the Bayesian Network in
+Figure~\ref{fig:dbn}.
+
+For the derivation of the measurement model, we will also need the
+term $p(s_t|s_{t-1})$ which stands for the probability of sampling
+surface points $s_t$ from the currently visible surface given
+$s_{t-1}$ from the previous frame. The sampled points might differ
+because of occlusions, viewpoint changes, random sampling from the
+surface and deformations of the object (e.g. body movement of a
+walking pedestrian). Every point of $s_t$ could have been generated
+from a visible or occluded part of the surface in frame $t-1$. When we
+consider the prior probability $p(V)$ for sampling from a previously
+visible surface, we can use the joint distribution over these two
+cases:
+\begin{equation}
+\label{eq:st-st-1}
+p(s_t|s_{t-1})=p(V)*p(s_{t,i}|s_{t-1},V) + p(\neg V)*p(s_{t,i}|s_{t-1},\neg V)
+\end{equation}
+$p(s_{t,i}|s_{t-1},\neg V)$ stands for the probability that $s_{t,i}$
+is generated from a part of the surface that was not visible in the
+previous frame. Under the assumption that every non visible point is
+occluded, we can rewrite the term with constants $k_1$ and $k_2$:
+\begin{equation}
+p(s_{t,i}|s_{t-1},\neg V) = k_1 (k_2 - p(s_{t,i}|s_{t-1},V))
+\end{equation}
+This allows simplifying Equation~\ref{eq:st-st-1} to
+\begin{equation}
+p(s_t|s_{t-1})=\eta (p(s_{t,i}|s_{t-1},V) + k)
+\end{equation}
+with the normalization constant $\eta=p(V)-p(\neg V) k_1$ and the
+smoothing factor $k=p(\neg V)k_1k_2/\eta$.
+%Possible equation
+These constants can later be found by training.
+
+$p(s_{t,i}|s_{t-1},V)$ can be modeled by a
+Gaussian distribution $s_{t,i} \sim \mathcal{N}(s_{t-1,i},\Sigma_r)$ where
+$s_{t-1,i}$ is the closest corresponding surface point from the
+previous frame and $\Sigma_r$ is the variance mainly resulting from
+the sensor resolution and the object deformation.
+
+For the measurement model used in the annealed dynamic histogram, we
+need to derive $p(z_t|x_t,z_1,...,z_{t-1})$, the probability for the
+current measurement given the histogram cell with state $x_t$ and the
+previous measurements $z_1$ to $z_{t-1}$. Though considering all
+previous measurements of the object would be computationally
+costly. Although the measurements in different time frames are not
+independent given the state, as discussed earlier, we can focus only
+on the previous one as approximation, because the previous one has the
+highest impact of all measurements in the history.
+\begin{equation}
+p(z_t|x_t,z_1,...,z_{t-1}) \approx p(z_t|x_t,z_{t-1})
+\end{equation}
+This approximation can be rewritten by using the joint distribution over
+all surface points in the current and previous frame:
+\begin{equation}
+p(z_t|x_t,z_{t-1}) = \iint p(z_t,s_t,s_{t-1}|x_t,z_{t-1}) \mathrm d
+s_t \mathrm d s_{t-1}
+\end{equation}
+Because of the chain rule of probabilities and the conditional
+independences that could be derived from the Dynamic Bayesian Network
+in Figure~\ref{fig:dbn} we can refine the term in the integral:
+\begin{equation}
+p(z_t,s_t,s_{t-1}|x_t,z_{t-1}) = 
+\end{equation}
 
 
 
+
+\subsection{Adding Color and Motion}
+\label{sub:adding-color}
 \subsection{Annealed Dynamic Histograms}
 \label{sub:adh}
-\subsection{Adding Color}
-\label{sub:adding-color}
 
 % +++++++++++++++++++++++++
 \section{Evaluation}
