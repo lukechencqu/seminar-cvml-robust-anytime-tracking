@@ -431,7 +431,7 @@ $p(s_{t,i})$ is a uniform distribution over the maximum size of an
 object. The prior of the surface is the product over its points
 $p(s_{t})=\Pi_i p(s_{t,i})$.
 
-\begin{wrapfigure}{r}{0.4\linewidth}
+\begin{wrapfigure}{r}{0.45\linewidth}
   \center
   \includegraphics[width=\linewidth]{surface-measurement}
   \caption{Measurement points $z_t$ sampled with sensor noise
@@ -452,12 +452,14 @@ roughly linear function of the distance between object and sensor. The
 generation of measurement points $z_t$ depending on the surface points
 $s_t$, the sensor noise $\Sigma_e$ and the position can be written as
 \begin{equation}
+\label{eq:gaus-zt}
 z_{t,i} \sim \mathcal{N}(s_{t,i},\Sigma_e) + x_{t,p} \mbox{ . }
 \end{equation}
 Because the origin of the coordinate system is placed at the centroid
 of the object in the previous frame, the measurements of the previous
 frame are not shifted
 \begin{equation}
+\label{eq:ind-centroid}
 z_{t-1,i} \sim \mathcal{N}(s_{t-1,i},\Sigma_e) \mbox{ . }
 \end{equation}
 Therefore $z_{t-1}$ is conditionally independent from $x_{t-1}$ what
@@ -477,7 +479,7 @@ visible surface, we can use the joint distribution over these two
 cases:
 \begin{equation}
 \label{eq:st-st-1}
-p(s_t|s_{t-1})=p(V)*p(s_{t,i}|s_{t-1},V) + p(\neg V)*p(s_{t,i}|s_{t-1},\neg V)
+p(s_{t,i}|s_{t-1})=p(V)*p(s_{t,i}|s_{t-1},V) + p(\neg V)*p(s_{t,i}|s_{t-1},\neg V)
 \end{equation}
 $p(s_{t,i}|s_{t-1},\neg V)$ stands for the probability that $s_{t,i}$
 is generated from a part of the surface that was not visible in the
@@ -488,18 +490,29 @@ p(s_{t,i}|s_{t-1},\neg V) = k_1 (k_2 - p(s_{t,i}|s_{t-1},V))
 \end{equation}
 This allows simplifying Equation~\ref{eq:st-st-1} to
 \begin{equation}
-p(s_t|s_{t-1})=\eta (p(s_{t,i}|s_{t-1},V) + k)
+\label{eq:prob-surf}
+p(s_{t,i}|s_{t-1})=\eta_1 (p(s_{t,i}|s_{t-1},V) + k)
 \end{equation}
-with the normalization constant $\eta=p(V)-p(\neg V) k_1$ and the
-smoothing factor $k=p(\neg V)k_1k_2/\eta$.
+with the normalization constant $\eta_1=p(V)-p(\neg V) k_1$ and the
+smoothing factor $k=p(\neg V)k_1k_2/\eta_1$.
 %Possible equation
 These constants can later be found by training.
 
 $p(s_{t,i}|s_{t-1},V)$ can be modeled by a
-Gaussian distribution $s_{t,i} \sim \mathcal{N}(s_{t-1,i},\Sigma_r)$ where
-$s_{t-1,i}$ is the closest corresponding surface point from the
+Gaussian distribution
+\begin{equation}
+\label{eq:gaus-st-i}
+s_{t,i} \sim \mathcal{N}(s_{t-1,i},\Sigma_r)
+\end{equation}
+where $s_{t-1,i}$ is the closest corresponding surface point from the
 previous frame and $\Sigma_r$ is the variance mainly resulting from
-the sensor resolution and the object deformation.
+the sensor resolution and the object deformation. Combining these
+Gaussians in Equation~\ref{eq:prob-surf} for all surface points in
+$s_t$ yields
+\begin{equation}
+\label{eq:gaus-st}
+p(s_{t}|s_{t-1}) = \eta(\mathcal{N}(s_t;s_{t-1,i},\Sigma_r) + k) \mathrm{ . }
+\end{equation}
 
 For the measurement model used in the annealed dynamic histogram, we
 need to derive $p(z_t|x_t,z_1,...,z_{t-1})$, the probability for the
@@ -516,18 +529,62 @@ p(z_t|x_t,z_1,...,z_{t-1}) \approx p(z_t|x_t,z_{t-1})
 This approximation can be rewritten by using the joint distribution over
 all surface points in the current and previous frame:
 \begin{equation}
+\label{eq:mm-iint}
 p(z_t|x_t,z_{t-1}) = \iint p(z_t,s_t,s_{t-1}|x_t,z_{t-1}) \mathrm d
 s_t \mathrm d s_{t-1}
 \end{equation}
 Because of the chain rule of probabilities and the conditional
 independences that could be derived from the Dynamic Bayesian Network
 in Figure~\ref{fig:dbn} we can refine the term in the integral:
+\begin{align}
+p(z_t,s_t,s_{t-1}|x_t,z_{t-1})
+&= p(z_t|s_t,x_t)p(s_t|s_{t-1})p(s_{t-1}|x_t,z_{t-1})\nonumber\\
+&\overset{(\ref{eq:ind-centroid})}{=} p(z_t|s_t,x_t)p(s_t|s_{t-1})p(s_{t-1}|z_{t-1})\nonumber\\
+&= \eta_2p(z_t|s_t,x_t)p(s_t|s_{t-1})p(z_{t-1}|s_{t-1})p(s_{t-1})
+\end{align}
+$\eta_2$ is again a normalization constant and can be used to absorb
+the constant term $p(s_{t-1})$. This term is constant because it is
+the product of a constant number of unifiedly distributed
+probabilities of the surface points. This allows simplifying the
+term in the integral further:
+\begin{align}
+\label{eq:meas-mod-before-convolution}
+p(z_t,s_t,s_{t-1}|x_t,z_{t-1})
+&=\eta\underbrace{p(z_t|s_t,x_t)}_{(\ref{eq:gaus-zt})}\underbrace{p(s_t|s_{t-1})}_{(\ref{eq:gaus-st})}\underbrace{p(z_{t-1}|s_{t-1})}_{(\ref{eq:ind-centroid})}
+\end{align}
+For this term, we have modeled all probabilities as Gaussians as
+indicated under Equation~\ref{eq:meas-mod-before-convolution}.
+Therefore, the term only consists of a product of Gaussians and
+Gaussians plus a constant. If we plug in
+Equation~\ref{eq:meas-mod-before-convolution} back into our integrals
+in Equation~\ref{eq:mm-iint}, we can apply a convolution of Gaussians
+to solve the inner integral~\cite{prob-rob}. Because the convolution of two Gaussians
+results in a Gaussian, we can apply a convolution of Gaussians again
+to evaluate the outer integral and yield a Gaussian for the
+measurement model:
 \begin{equation}
-p(z_t,s_t,s_{t-1}|x_t,z_{t-1}) = 
+\label{eq:gaus-mm}
+p(z_t|x_t,z_{t-1}) =
+\eta(\mathcal{N}(z_t;z_{t-1}+x_{t,p},\Sigma_r+2\Sigma_e)+k)
 \end{equation}
-
-
-
+For the computation of the measurement model, we introduce the
+variable $\bar{z}_{t-1}=z_{t-1}+x_{t,p}$ so that the measurement in
+the previous frame is shifted according to $x_t$. Then for each
+$z_{t,i}\in z_t$, we have to find the closest corresponding point
+$\mathrm{ccp}(z_{t,i}) = \bar{z}_{t-1,j}\in \bar{z}_{t-1}$. The measurement
+probability for the current measurement given the inspected state and
+the previous measurements can be computed by
+\begin{equation}
+\label{eq:gaus-mm}
+p(z_t|x_t,z_{t-1}) =
+\eta\left(\prod_{z_{t,i}\in z_t}
+\mathrm{exp}\left(-\frac{1}{2}(z_{t,i}-\mathrm{ccp}(z_{t,i}))^T\Sigma^{-1}(z_{t,i}-\mathrm{ccp}(z_{t,i}))\right)+k\right)
+\end{equation}
+with normalization constant $\eta$, smoothing factor $k$, and
+covariance matrix $\Sigma = 2\Sigma_e+\Sigma_r$. Again these constants
+and the function for $\Sigma_r$ depending on the distance between
+sensor and tracked object can be found by optimizing for a set of
+training data.
 
 \subsection{Adding Color and Motion}
 \label{sub:adding-color}
