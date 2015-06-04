@@ -624,6 +624,24 @@ the probability $p(x_t|z_1,...,z_t)$.
 where $x_{t,i}$ is the state of sample $i$.
 
 \subsubsection{Color Model}
+The model we have developed up to this point considers the 3D shape
+and motion of tracked objects. As presented in the evaluation in
+Section~\ref{sec:evaluation}, this model can be used to implement the
+tracker and yields reliable results. Although we also want to add
+color information to the model, this is important because color
+information is not always availale (e.g. when the autonomous car is
+driving in the dark). To incorporate the fact, that the color of the
+surface points should match between two successive frames, into the
+model, we first need to learn the probability distribution of color
+matchings. This can be done by analyzing a dataset with already
+known alignments. For an autonomous car such a dataset can be easily
+obtained by driving in a static environment (e.g. along a row of
+parked cars). The alignment of the tracked objects can then be
+computed with the speed of the car and the position of the tracked
+object relative to the car. For the analyzing of color matchings then
+the nearest points of two subsequent measurements can be used. It is
+reasonable to use only the correspondence pairs with a distance under
+a certain threshold (5cm was used by the authors of the paper). 
 
 \subsection{Annealed Dynamic Histograms}
 \label{sub:adh}
