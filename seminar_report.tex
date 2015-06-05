@@ -712,8 +712,8 @@ Now we can revise measurement probability by
 using the color probability
 \begin{equation}
   p_c(z_{t,i}|x_t,z_{t-1},V) 
-  = &p(C)p_c(z_{t,i}|\mathrm{ccp}(z_{t,i}),V,C)
-  &p(\neg C)p_c(z_{t,i}|\mathrm{ccp}(z_{t,i}),V,\neg C)
+  = p(C)p_c(z_{t,i}|\mathrm{ccp}(z_{t,i}),V,C)
+  p(\neg C)p_c(z_{t,i}|\mathrm{ccp}(z_{t,i}),V,\neg C)
 \end{equation}
 what results in
 \begin{equation}
@@ -730,6 +730,33 @@ the smoothing parameter $k_4$ that has to be found by training.
 
 \subsection{Annealed Dynamic Histograms}
 \label{sub:adh}
+With the measurement model we have derived up to now, the probability
+for the current measurement given an assumed state can be computed. To
+search the state space for the state that is most likely given the
+measurement, we use an \textit{annealed dynamic histogram}. We use a
+histogram because it allow to globally search the state space, in
+contrast to ICP, and to have multiple hypothesis. The histogram
+divides the state space into grid cells. For each of these grid cells
+we compute the probability $p(x_t|z_1,...,z_t)$. In an ordinary
+histogram, it would be neseccary to densly sample the state space to
+get a precise result. This would be computationally costly and
+prevents the use in a system with real-time requirements. Therefore,
+we use a dynamic histogram where only the areas with a high
+probability are densly sampled. Subsection~\ref{sub:refinement}
+descibes how the annealed dynamic histogram is initialized with a
+coarse resolution and is then dynamically refined to increase the
+density in the important areas. Though, the coarse resolution and the
+dynamically change of it have the drawback that in the areas with
+coarse resolution the measurements are less likely to fit than in the
+densly sampled areas. How this problem is solved by considering the
+resolution of a grid cell in the measurement model is presented in
+Subsection~\ref{sub:annealing}.
+
+
+\subsubsection{Dynamical Refinement}
+\label{sub:refinement}
+\subsubsection{Annealing by Resolution}
+\label{sub:annealing}
 
 % +++++++++++++++++++++++++
 \section{Evaluation}
