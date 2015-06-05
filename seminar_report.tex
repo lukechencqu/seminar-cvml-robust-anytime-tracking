@@ -633,15 +633,63 @@ information is not always availale (e.g. when the autonomous car is
 driving in the dark). To incorporate the fact, that the color of the
 surface points should match between two successive frames, into the
 model, we first need to learn the probability distribution of color
-matchings. This can be done by analyzing a dataset with already
-known alignments. For an autonomous car such a dataset can be easily
+matchings. This can be done by analyzing a dataset with already known
+alignments. For an autonomous car, such a dataset can be easily
 obtained by driving in a static environment (e.g. along a row of
 parked cars). The alignment of the tracked objects can then be
 computed with the speed of the car and the position of the tracked
-object relative to the car. For the analyzing of color matchings then
+object relative to the car. For the analyzing of color matchings, then
 the nearest points of two subsequent measurements can be used. It is
 reasonable to use only the correspondence pairs with a distance under
-a certain threshold (5cm was used by the authors of the paper). 
+a certain threshold (5cm was used by the authors of the
+paper). Although it would be intuitive to use all available color
+channels, we use only the blue color channel. This simplifies the
+problem, because we do not need to learn the covariences between the
+color channels, and already increases the performance of the
+method. The blue color channel was chosen by experiments with a
+validation set.  The resulting distribution for color differences
+follows a Laplacian distribution.
+\textcolor{red}{maybe add distribution figure}
+To include the color distribution into our measurement model, we
+extend the calculation of the term $p(s_{t,i}|s{t-1},V)$ what is
+intuitive because the color is a property of the surface and, to know
+the color, the point has to be visible in the previous frame:
+\begin{equation}
+  p(s_{t,i}|s{t-1},V) = p_s(s_{t,i}|s{t-1},V) p_c(s_{t,i}|s{t-1},V)
+\end{equation}
+where $p_s(s_{t,i}|s{t-1},V)$ is the probability for the spatial
+matching as before and $p_c(s_{t,i}|s{t-1},V)$ is the probability for
+the color match. For the term $p_c(s_{t,i}|s{t-1},V)$ it does not
+suffice just to use the learned color model. This is due to changes in
+lighting, lens flare, and other cases that can change the observed
+colors significantly. Therefore, we need to introduce a probability
+$p(\neg C)$ for cases where the learned color model can not be
+applied. Now we can refine the probability for a color match:
+\begin{align}
+p_c(s_{t,i}|s{t-1},V)
+  &= p(C)p_c(s_{t,i}|s_{t-1},V,C) \nonumber\\
+&+ p(\neg
+C)p_c(s_{t,i}|s_{t-1},V,\neg C)\nonumber
+\end{align}
+$p_c(s_{t,i}|s_{t-1},V,C)$ is the color distrubution learned from the
+training set. $p_c(s_{t,i}|s_{t-1},V,\neg C)$ is the probability for a
+point having any color that does not match the color in the previous
+frame. Because we use $256$ color intensities and we assume for
+simplicity that the colors are unifomly distributed, we can use
+$p_c(s_{t,i}|s_{t-1},V,\neg C) = \frac{1}{255}$.
+
+The probability $p(C)$ that the color of two corresponding points in
+successive frames should matchcould be trained again. Though, there is
+a problem when the resolution of the sample in the annealed dynamic
+histogram is low. For low resolutions, the likelyhood of a color
+machting is smaller than for high resolutions. Therefore, we can model
+$p(C)$ as function of the sampling resolution:
+\begin{equation}
+  p(C) = p_c \mathrm{exp}\left( \frac{-r^2}{2\sigma_c^2} \right)
+\end{equation}
+with sampling resolution $r$, 
+
+
 
 \subsection{Annealed Dynamic Histograms}
 \label{sub:adh}
