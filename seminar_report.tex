@@ -680,15 +680,36 @@ $p_c(s_{t,i}|s_{t-1},V,\neg C) = \frac{1}{255}$.
 
 The probability $p(C)$ that the color of two corresponding points in
 successive frames should matchcould be trained again. Though, there is
-a problem when the resolution of the sample in the annealed dynamic
-histogram is low. For low resolutions, the likelyhood of a color
-machting is smaller than for high resolutions. Therefore, we can model
+a problem with the resolution of the sample in the annealed dynamic
+histogram. For coarse resolutions, the likelyhood of a color
+machting is smaller than for good resolutions. Therefore, we can model
 $p(C)$ as function of the sampling resolution:
 \begin{equation}
   p(C) = p_c \mathrm{exp}\left( \frac{-r^2}{2\sigma_c^2} \right)
 \end{equation}
-with sampling resolution $r$, 
+with sampling resolution $r$ (as interval size, not as number of
+intervals), parameter $p_c$ for the probability with ideal resolution
+$r=0$, and parameter $\sigma_c$ which defines how fast $p(C)$ decreses
+with increasing resolution.
 
+Now we can revise measurement probability by
+using the color probability
+\begin{equation}
+  p_c(z_{t,i}|x_t,z_{t-1},V) 
+  = &p(C)p_c(z_{t,i}|\mathrm{ccp}(z_{t,i}),V,C)
+  &p(\neg C)p_c(z_{t,i}|\mathrm{ccp}(z_{t,i}),V,\neg C)
+\end{equation}
+what results in
+\begin{equation}
+\label{eq:mm-color-compute}
+p(z_t|x_t,z_{t-1}) = \eta\left(\prod_{z_{t,i}\in z_t}
+p_s(z_{t,i}|x_t,z{t-1})p_c(z_{t,i}|x_t,z{t-1},V)
++ k_3(k_4 - p_s(z_{t,i}|x_t,z{t-1}))
+\right)
+\mathrm{ . }
+\end{equation}
+with $k_3=k/(k+1)$, where k is from Equation~\ref{eq:mm-compute}, and
+the smoothing parameter $k_4$ that has to be found by training.
 
 
 \subsection{Annealed Dynamic Histograms}
