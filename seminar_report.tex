@@ -591,6 +591,22 @@ and the function for $\Sigma_r$, which depends on the distance between
 sensor and tracked object, can be found by optimizing for a set of
 training data.
 
+The computation with Equation~\ref{eq:mm-compute} works well if the
+point clouds $z_t$ and $z_{t-1}$ have a similar size. Because of
+occlusion the size of the point clouds can vary. This is a problem
+because Equation~\ref{eq:mm-compute} is not symmectric with respect to
+$z_t$ and $z_{t-1}$. For example when a part of the detected object
+becomes unoccluded in comparison to the previous frame, $z_t$ is
+larger than $z_{t-1}$ and therefore each point in $z_t$ that has no
+nearby correspondence in $z_{t-1}$ adds a large penalty. This would
+result in an incorrect alignment because the tracker would try to
+minimize the number of badly matchable points and therefore focuses on
+aligning the densest parts of the pointclouds. This problem can be
+solved by exchanging $z_t$ and $z_{t-1}$ so that always the smaller
+point cloud is aligned in the larger one. In the case of such an
+exchange, the implementation also has to consider the switch of the
+coordinate system origin.
+
 \subsection{Adding Color and Motion}
 \label{sub:adding-color}
 So far, the measurement model considers the 3D shape of the object to
