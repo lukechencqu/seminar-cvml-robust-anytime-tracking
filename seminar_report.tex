@@ -996,25 +996,11 @@ frames and frames with lense flare.
 \label{sub:relative-ref-frame}
 \begin{figure}
   \center
-  \subfigure[Path taken by the car on the parking space]{%
-    \includegraphics[height=.25\linewidth]{rel-ref-frame-path}
-    \label{fig:rel-ref-frame-path}
-  }
-  \subfigure[Distribution of linear velocities\\ of tracked objects in the
-    local refference\\ frame]{%
-    \includegraphics[height=.25\linewidth]{rel-ref-frame-vel}
-    \label{fig:rel-ref-frame-vel}
-  }
-  \subfigure[Distribution of rotational velocities\\ of tracked objects in the
-    local refference\\ frame]{%
-    \includegraphics[height=.25\linewidth]{rel-ref-frame-rot}
-    \label{fig:rel-ref-frame-rot}
-  }
-  
-  \caption{Movement of the recording path when generating tracking
-    data for the local refference frame approach~\cite{paper}.}
-  \label{fig:rel-ref-frame}
+  \includegraphics[width=.45\linewidth]{rel-ref-frame-path}
+  \caption{Path taken by the tracking car on the parking space~\cite{paper}.}
+  \label{fig:rel-ref-frame-path}
 \end{figure}
+
 In the first approach, the test data is recorded by a car driving on a
 parking space. During the recording of $6.6$ minutes, about $560$ cars
 were tracked. This large dataset allows a good quantitative
@@ -1035,6 +1021,20 @@ turning circle of the car, the distribution of velocities of the
 tracked objects is wider than the simple velocity distribution of the
 car. These velocity distributions are plotted in
 Figure~\ref{fig:rel-ref-frame-vel} and~\ref{fig:rel-ref-frame-rot}.
+\begin{figure}
+  \center
+  \subfigure[Distribution of linear velocities]{%
+    \includegraphics[height=.32\linewidth]{rel-ref-frame-vel}
+    \label{fig:rel-ref-frame-vel}
+  }
+  \subfigure[Distribution of rotational velocities]{%
+    \includegraphics[height=.32\linewidth]{rel-ref-frame-rot}
+    \label{fig:rel-ref-frame-rot}
+  }
+  \caption{Distribution of the ground-truth velocities of the tracked
+    objects in the local refference frame~\cite{paper}.}
+  \label{fig:rel-ref-frame}
+\end{figure}
 
 To evaluate only the position and velocity estimation part of the
 tracking pipeline, some tracked objects over a number of successive
@@ -1049,8 +1049,21 @@ multiple peaces is not filtered out.
 We now compare the performance of the proposed tracking method with
 several widely used baseline methods. One the one hand, we compare the
 RMS error and on the other hand the mean runtime.
+Figure~\ref{fig:rms-runtime} shows the results of the
+comparison. Plotted are RMS errors at different mean runtimes for the
+method presented in this report as well as four other baseline methods.
 
-The first
+The first baseline method we use for comparison is a Kalman filter that
+uses only the centroid of point cloud in a frame in its measurement
+model. This method is widely used because of the easy implementation
+and the fast computation. As shown in Figure~\ref{fig:rms-runtime} the
+Kalman filter is extremely fast with a computational time below $0.1$
+milliseconds. This was expected because the Kalman filter only uses
+the centroid instead of aligning two point clouds. The RMS error is
+$0.78 \mathrm{~m/s}$ and shows that the Kalman filter is not very
+accurate. For the Kalman filter, there is only a single mean runtime
+because the Kalman filter only has a single computation step and no
+dynamic improvement steps.
 
 \begin{figure}
   \center
@@ -1061,6 +1074,33 @@ The first
   \label{fig:rms-runtime}
 \end{figure}
 
+Furthermore, we analyze the performance of ICP in different
+variants. These variants differ in the initialization of ICP and
+wheather they are used as a measurement model in for Kalman
+filter. The basic point-to-point ICP algorithm is described
+in~\cite{icp-basic} and uses the centroid of the point clouds to align
+as initialization. The algorithm was run with up to $100$ incremental
+alignment iterations. The RMS error with different mean runtimes is
+shown in Figure~\ref{fig:rms-runtime} and is about
+$1\mathrm{~m/s}$. This is $23\%$ worse than the RMS error of a simple
+Kalman filter and therefore no good tracking performance. This bad
+performance in comparison to the Kalman filter is caused by the
+missing motion model which is important for robust tracking. Without a
+motion model, only the last two frames can be used to estimate the
+velocity of the tracked object. Therefore, a single incorrect
+alignment as, for example, show in Figure~\ref{fig:icp} significantly
+impacts the tracking error. A Kalman filter with its motion model
+can refine the result of many more previous alignments into one
+Gaussian distribution and can compensate wrong alignments because the
+ceartainty of a measurement can be considered as variance when feeding
+the measurement into the Kalman filter. 
+
+By combining the Kalman filter and ICP into one method, the drawbacks
+of both methods can be removed. ICP can be used as measurement model
+to align the point clouds in successive frames what removes the
+information loss in the basic Kalman filter that only uses the
+centroid. The result can be used in the motion model of the Kalman
+filter. 
 \subsection{Model Crispness}
 \label{sub:model-crispness}
 
