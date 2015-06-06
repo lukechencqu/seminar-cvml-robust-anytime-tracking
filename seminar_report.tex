@@ -897,12 +897,89 @@ return the mode of the distribution. For sophisticated planners which
 would be used in an autonomous car, also the complete probability
 distrubution as a density tree could be returned~\cite{density-tree}.
 Using the mean of the distribution has the advantage that this would
-minimize the Root-Mean-Square error \textit(RMS error) as shown
+minimize the \textit{Root-Mean-Square error (RMS error)} as shown
 in~\cite{paper}. \textcolor{red}{Probabily show this?}.
 
 % +++++++++++++++++++++++++
 \section{Evaluation}
 \label{sec:evaluation}
+This section evaluates the tracker using the position and velocity
+estimation with annealed dynamic histograms and a model which combines
+cues from 3D shape, color, and motion. It presents the experiments and
+results of~\cite{paper}. The main criteria of the evaluation are the
+robustness, the precision, and the runtime of the proposed
+method. The performance in these criteria is compared with other
+widely used tracking methods for position and velocity estimation,
+such as ICP and Kalman filters.
+
+Although there are some existing evaluation methods for tracking, they
+mostly are not applicable or not suitable for the autonomous driving
+application. Many standard evaluation techniques are not applicable
+because the method we want to evaluate only focuses on a subpart of
+tracking, namely position and velocity estimation. From the tracking
+evaluation techniques for tracking multiple objects, the metric called
+\textit{multiple object tracking accuracy (MOTA)} can not be used
+because it incorporates penailties for wrong assignments called id
+switches. \textit{Multiple object detection accuracy (MODA)} considers
+the amount of incorrect detections (e.g. false
+positives). \textit{Multiple object detection precision (MODP)}
+measures the position detection in single frames (e.g. to find the
+centroid). These three metrics are not aplicable here, because the
+presented method is not responsible for these problems. The metric
+called \textit{multiple object tracking precision (MOTP)} would be
+suitable for the method because it only evaluates the precision of the
+position estimation given a correct matching~\cite{mot,mot2}. However,
+the authors of the presented paper focus on measuring the
+\textit{Root-Mean-Square error (RMS error)}
+\begin{align}
+  e_{RMS}=\sqrt{\mathbb{E}((\hat{v}_t-v_t)^2)}
+\end{align}
+where $\mathbb{E}$ is the mean and $\hat{v}_t-v_t$ is the velocity
+tracking error. We focus here on the velocity instead of the whole
+state with position and velocity because the position $x_{t,p}$ in the
+state is relative to the objects position in the previous frame and
+mainly used for estimating the velocity with the motion model. The
+absolute position of the tracked object can easily be computed as the
+centroid of the point cloud and thus has not to be evaluated here. The
+RMS error is widely used and has the property to give large errors a
+higher influence than many small ones have. A problem with the RMS
+error, which was not mentioned by the authors of the paper, is that it
+is independent of the distance to the object. Intuitively, the
+tracking error for distant objects whould be higher than for close
+objects because the point clouds have less measurement
+points. However, the authors might have considered it in the
+evaluation because the distance to the tracked object is incorporated
+in the variance of the measurement model Gaussian and therefore also
+in the variance of the returned tracking estimate.
+
+To properly evaluate the performance of the tracker, a large dataset
+with many different objects to track is needed, because in practise an
+autonomous car has to track many different objects with different
+shapes, color distributions, and motion patterns. Therefore, the
+aquisition of evaluation data has to be scalable. This excludes
+methods as done by~\cite{unscalable-eval} where the tracking and
+tracked cars were equipped with additional sensors to measure the
+positions and velocities. The authors of the paper presented in this
+report propose two approaches to automatically generate test data and
+evaluate the tracking with it. In both approaches, the car was driven
+around and the sensor data with object detection and object assignment
+was recorded. Therefore, a large amount and variety of tracked object
+in the surrounding of the car is automatically recorded and the data
+is taken from a environment that is close or equal to the application
+environment. In the first approach which is presented in
+Subsection~\ref{sub:relative-ref-frame}, the car drives in a
+parking space where the tracked objects are not moving. By assuming
+that the car is standing still, the tracked objects seem to be
+moving and their  velocity can be tracked. The results can
+be compared to the velocity calculated with the cars movement and the
+distance to the tracked object. The second approach is described in
+Subsection~\ref{sub:model-crispness} and utilizes a recorded dataset
+from the car driving in real traffic. Using the relative positions of
+the point clouds calculated by the tracker, the point clouds can be
+merged to build a model of the tracked object. Then a metric is
+introduced to measure the quality of the build model.
+
+
 \subsection{Relative Reference Frame}
 \label{sub:relative-ref-frame}
 \subsection{Model Crispness}
