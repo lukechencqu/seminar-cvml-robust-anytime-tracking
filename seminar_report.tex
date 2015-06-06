@@ -482,10 +482,11 @@ from a visible or occluded part of the surface in frame $t-1$. When we
 consider the prior probability $p(V)$ for sampling from a previously
 visible surface, we can use the joint distribution over these two
 cases:
-\begin{equation}
+\begin{align}
 \label{eq:st-st-1}
-p(s_{t,i}|s_{t-1})=p(V)*p(s_{t,i}|s_{t-1},V) + p(\neg V)*p(s_{t,i}|s_{t-1},\neg V)
-\end{equation}
+p(s_{t,i}|s_{t-1})=&p(V)*p(s_{t,i}|s_{t-1},V) + \nonumber\\
+&p(\neg V)*p(s_{t,i}|s_{t-1},\neg V)
+\end{align}
 $p(s_{t,i}|s_{t-1},\neg V)$ stands for the probability that $s_{t,i}$
 is generated from a part of the surface that was not visible in the
 previous frame. Under the assumption that every non visible point is
@@ -683,9 +684,8 @@ $p(\neg C)$ for cases where the learned color model can not be
 applied. Now we can refine the probability for a color match:
 \begin{align}
 p_c(s_{t,i}|s{t-1},V)
-  &= p(C)p_c(s_{t,i}|s_{t-1},V,C) \nonumber\\
-&+ p(\neg
-C)p_c(s_{t,i}|s_{t-1},V,\neg C)\nonumber
+  = &p(C)p_c(s_{t,i}|s_{t-1},V,C)+ \nonumber\\
+&p(\neg C)p_c(s_{t,i}|s_{t-1},V,\neg C)\nonumber
 \end{align}
 $p_c(s_{t,i}|s_{t-1},V,C)$ is the color distrubution learned from the
 training set. $p_c(s_{t,i}|s_{t-1},V,\neg C)$ is the probability for a
@@ -710,11 +710,11 @@ with increasing resolution.
 
 Now we can revise measurement probability by
 using the color probability
-\begin{equation}
+\begin{align}
   p_c(z_{t,i}|x_t,z_{t-1},V) 
-  = p(C)p_c(z_{t,i}|\mathrm{ccp}(z_{t,i}),V,C)
-  p(\neg C)p_c(z_{t,i}|\mathrm{ccp}(z_{t,i}),V,\neg C)
-\end{equation}
+  = &p(C)p_c(z_{t,i}|\mathrm{ccp}(z_{t,i}),V,C)+\nonumber\\
+  &p(\neg C)p_c(z_{t,i}|\mathrm{ccp}(z_{t,i}),V,\neg C)
+\end{align}
 what results in
 \begin{equation}
 \label{eq:mm-color-compute}
@@ -751,7 +751,8 @@ have the drawback that in the areas with coarse resolution the
 measurements are less likely to fit than in the densly sampled
 areas. How this problem is solved by considering the resolution of a
 grid cell in the measurement model is presented in
-Subsection~\ref{sub:annealing}.
+Subsection~\ref{sub:annealing}. How the tracking estimate can be
+returned as result is shown in Subsection~\ref{sub:adh-resulting}.
 
 
 \subsubsection{Dynamical Refinement}
@@ -804,20 +805,86 @@ the subcells in region $R$. Therefore, the probabilities of all cells
 outside of $R$ are not changed.
 
 Loosely speaking, the criteria that chooses which cells to devide in
-the next step tries to maximize the information gain. Prefered
+the next step, tries to maximize the information gain. Prefered
 subdevisions result in a more definite distribution of probabilities
-in the subcells
+in the subcells. In other words, the probability of the cell to devide
+is condensed in a few subcells instead of uniformly distributed. 
+To measure this information gain, we inspect the distribution in the
+possible subcells before and after deviding. Let distribution $B$ be
+currently estimated distribution in the subcells before
+deviding. Because we only know the probability of the parent-cell, we
+assume that this probability is equally distributed among the subcells
+as illustrated in the left of Figure~\ref{fig:adh-criteria}.
 \begin{figure}
   \center
   \includegraphics[width=0.55\linewidth]{devision-criteria}
-  \caption{\textcolor{red}{todo}~\cite{paper}.}
+  \caption{Before deviding a parent-cell we assume that its
+    probability is equally distributed amoung the $k$ subcells. After
+    deviding, each subcell has its own probability.~\cite{paper}.}
   \label{fig:adh-criteria}
 \end{figure}
+After deviding the parent-cell, each of the $k$ subcell has its own
+probability and the only constraint is that the sum of the subcell
+probabilities has to match the parent-cells probability $\sum_{j=1}^k p_j=P_i$. The new
+distribution of probabilities amoung the subcells is called $A$ and is
+a better approximation of the true posterior than $B$.
 
+This kind of information gain can be computed with the
+Kullback–Leibler divergence \textit{(KL-divergence)}~\cite{kl-divergence}. The
+KL-divergence of $B$ from $A$ measures the information loss when $A$
+is approximated with $B$. In our case, we can compute the
+KL-divergence with
+\begin{align}
+  D_{KL}(A||B)=\sum_{j=1}^k p_j \mathrm{ln}\left(\frac{p_j}{P_i/k}\right)
+\end{align}
+where $A$ and $B$ are the distributions after and before deviding as
+described before. In the mostly prefered case of a subdevision,
+$p_{j'}=P_i$ for one $j'$ and $p_j=0$ for all $j\neq j'$. This is also
+the case in which the KL-divergence has its maximum value
+\begin{align}
+  D_{KL}(A||B)=P_i \mathrm{ln}(k) \mathrm{ . }
+  \label{eq:max-kl}
+\end{align}
+The minimum value of the KL-divergence $D_{KL}(A||B)=0$ is reached
+when the probability $P_i$ of the parent-cell is uniformly devided
+amoung the subcells. This is truly the minimum value because the
+KL-divergence is always non-negative~\cite{kl-divergence} and in this
+case there is no profit in deviding this parent-cell. With
+Equation~\ref{eq:max-kl} we can derive that the maximum KL-divergence
+per second is $P_i \frac{\mathrm{ln } (k)}{kt}$ where $t$ is the time
+to compute a probability for a subcell with the measurement
+model. Because $k$ is constant and $t$ should roughly be the same over
+the whole state spave, we have to devide the cells with the highest
+probability first to convert as fast as possible to the true
+posterior. If we want to devide all cells that have a higher
+probability than a threshold $p_{min}$, we can also devide all these
+cells in each iteration, as it is done in Figure~\ref{fig:adh}. This
+also yields a simple termination criteria. To maximize the the
+convergence speed to the true posterior, $k$ should be chosen as small
+as possible. For example if the histogram has $d$ dimensions, $k=3^d$
+could be used.
 
-
-\subsubsection{Annealing by Resolution}
+\subsubsection{Annealing}
 \label{sub:annealing}
+Up to now, we know how to refine the histogram by subdevision of cells
+and how to choose the cells to devide so that the distribution
+converges as fast as possible to the true distribution.
+
+
+\subsubsection{Resulting Tracking Estimate}
+\label{sub:adh-resulting}
+After terminating because all cell-probabilities are below the
+threshold $p_{min}$ or the computation was stopped due to real-time
+restrictions, the result of the position and velocity estimation can
+be returned. There are multiple possibilities what result can be
+returned by the histogram. The simplest approach would be to return
+the mean and variance of the distribution. An alternative would be to
+return the mode of the distribution. For sophisticated planners which
+would be used in an autonomous car, also the complete probability
+distrubution as a density tree could be returned~\cite{density-tree}.
+Using the mean of the distribution has the advantage that this would
+minimize the Root-Mean-Square error \textit(RMS error) as shown
+in~\cite{paper}. \textcolor{red}{Probabily show this?}.
 
 % +++++++++++++++++++++++++
 \section{Evaluation}
