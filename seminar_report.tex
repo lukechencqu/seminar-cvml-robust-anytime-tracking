@@ -866,9 +866,23 @@ could be used.
 
 \subsubsection{Annealing}
 \label{sub:annealing}
-Up to now, we know how to refine the histogram by subdevision of cells
-and how to choose the cells to devide so that the distribution
-converges as fast as possible to the true distribution.
+With the devision of cells into k subcells and the criteria to choose
+which cells to devide, we have a dynamic histogram that works in
+principle. Because of the coarse resolution of the histogram,
+especially at the initialization, we can not expect to find a good
+alignment between the two point clouds in the current and previous
+frame. The coarse resolution thus introduces an additional
+error-source in the method. A solution for this problem is to include
+the error resulting from the resolution as variance into the
+measurement model. We increase the variance of the measurement model
+Gaussian by a value $\Sigma_g$. Because the introduced error is
+expected to be smaller for a better resolution, $\Sigma_g$ is
+expressed as a function proportional to the resolution in the
+currently inspected cell. The updated variance of the measurement
+model then is $\Sigma = 2\Sigma_e+\Sigma_r+\Sigma_g$. As the
+resolution improves, the term for $\Sigma_g$ decreases towards $0$ and
+the variance converges against the value as before. Therefore, the
+measurement model is annealed as the resolution is improved.
 
 
 \subsubsection{Resulting Tracking Estimate}
