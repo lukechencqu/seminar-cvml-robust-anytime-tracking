@@ -384,7 +384,7 @@ important.
 To derive the probability for a position and velocity to cause the
 observed measurement seen in the last frames, we use a Bayesian
 Network because it allows us to easily combine 3D shape, color, and
-motion cues. After encoding the influences of the states,
+motion cues~\cite{paper}. After encoding the influences of the states,
 consisting of position and velocity, the surface of the object to
 track and the observed measurement, we can derive the wanted
 probability of the measurement given the state by applying well known
@@ -614,7 +614,7 @@ tell us how likely it is that a state causes the measured point
 cloud. To increase the robustness and precision of the tracker, we
 also want to consider clues from motion and color. This especially
 improves the performance in comparison to ICP which only uses the
-object shape.
+object shape~\cite{paper}.
 
 \subsubsection{Motion Model}
 For the motion model, we use a constant velocity model of a Kalman
@@ -733,28 +733,89 @@ the smoothing parameter $k_4$ that has to be found by training.
 With the measurement model we have derived up to now, the probability
 for the current measurement given an assumed state can be computed. To
 search the state space for the state that is most likely given the
-measurement, we use an \textit{annealed dynamic histogram}. We use a
-histogram because it allow to globally search the state space, in
-contrast to ICP, and to have multiple hypothesis. The histogram
-divides the state space into grid cells. For each of these grid cells
-we compute the probability $p(x_t|z_1,...,z_t)$. In an ordinary
-histogram, it would be neseccary to densly sample the state space to
-get a precise result. This would be computationally costly and
-prevents the use in a system with real-time requirements. Therefore,
-we use a dynamic histogram where only the areas with a high
-probability are densly sampled. Subsection~\ref{sub:refinement}
-descibes how the annealed dynamic histogram is initialized with a
-coarse resolution and is then dynamically refined to increase the
-density in the important areas. Though, the coarse resolution and the
-dynamically change of it have the drawback that in the areas with
-coarse resolution the measurements are less likely to fit than in the
-densly sampled areas. How this problem is solved by considering the
-resolution of a grid cell in the measurement model is presented in
+measurement, we use an \textit{annealed dynamic
+  histogram}~\cite{paper}. We use a histogram because it allow to
+globally search the state space, in contrast to ICP, and to have
+multiple hypothesis. The histogram divides the state space into grid
+cells. For each of these grid cells we compute the probability
+$p(x_t|z_1,...,z_t)$. In an ordinary histogram, it would be neseccary
+to densly sample the state space to get a precise result. This would
+be computationally costly and prevents the use in a system with
+real-time requirements. Therefore, we use a dynamic histogram where
+only the areas with a high probability are densly
+sampled. Subsection~\ref{sub:refinement} descibes how the annealed
+dynamic histogram is initialized with a coarse resolution and is then
+dynamically refined to increase the density in the important
+areas. Though, the coarse resolution and the dynamically change of it
+have the drawback that in the areas with coarse resolution the
+measurements are less likely to fit than in the densly sampled
+areas. How this problem is solved by considering the resolution of a
+grid cell in the measurement model is presented in
 Subsection~\ref{sub:annealing}.
 
 
 \subsubsection{Dynamical Refinement}
 \label{sub:refinement}
+\begin{figure}
+  \center
+  \subfigure[Initialization with a coarsly devided state space]{%
+    \includegraphics[height=.22\linewidth]{adh-init}
+    \label{fig:adh-init}
+  }
+  \subfigure[Cell subdivision and computation of the sample
+    alignment probability for new cells]{%
+    \includegraphics[height=.22\linewidth]{adh-step}
+    \label{fig:adh-step}
+  }
+  \subfigure[Further subdivision \textcolor{red}{details}]{%
+    \includegraphics[height=.22\linewidth]{adh-final}
+    \label{fig:adh-final}
+  }
+  
+  \caption{Dynamic refinement of an annealed dynamic histogram. The
+    grid cells devide the state space. The size of the circles
+    indicates the probability for the state in the cell given the
+    measurements~\cite{paper}.}
+  \label{fig:adh}
+\end{figure}
+
+To build the annealed dynamic histogram, we start with a coarsely
+devided state space and compute the sample alignment probability
+$p(x_t|z_1,...,z_t)$ for each cell. Figure~\ref{fig:adh-init} shows an
+example initialization. Then a cell is chosen to be devided into $k$
+subcells as in Figure~\ref{fig:adh-step} and~\ref{fig:adh-final}. For
+the new created cells, the sample alignment probability is computed
+again. To compute the probabilities for the new subcells, we first
+define $|c|$ as the volume of cell $c$ and $R$ as the region of cell
+we chose to subdevide into subcells $c_i$. This region does not have
+to be contiguous. The new probability $p(c_i)$ of subcell $c_i$ can be
+computed as follows:
+\begin{align}
+p(c_i)
+&=p(c_i\cap R)\nonumber\\
+&=p(c_i|R)p(R)\nonumber\\
+&=\frac{p(x_i|z_1,...,z_t)|c_i|}{\sum_{c_j\in
+    R}p(x_j|z_1,...,z_t)|c_{j\mathrm{ \textcolor{red}{ not i right?}}}|}p(R)\nonumber\\
+&=\eta p(x_i|z_1,...,z_t)p(R)
+\end{align}
+Thus, the intuitive property $\sum_{c_i\in R}p(c_i)=p(R)$
+holds. $\eta$ is again used for normalization and depends only on the
+the subcells in region $R$. Therefore, the probabilities of all cells
+outside of $R$ are not changed.
+
+Loosely speaking, the criteria that chooses which cells to devide in
+the next step tries to maximize the information gain. Prefered
+subdevisions result in a more definite distribution of probabilities
+in the subcells
+\begin{figure}
+  \center
+  \includegraphics[width=0.55\linewidth]{devision-criteria}
+  \caption{\textcolor{red}{todo}~\cite{paper}.}
+  \label{fig:adh-criteria}
+\end{figure}
+
+
+
 \subsubsection{Annealing by Resolution}
 \label{sub:annealing}
 
