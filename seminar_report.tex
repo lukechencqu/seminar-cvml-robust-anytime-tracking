@@ -1099,8 +1099,28 @@ By combining the Kalman filter and ICP into one method, the drawbacks
 of both methods can be removed. ICP can be used as measurement model
 to align the point clouds in successive frames what removes the
 information loss in the basic Kalman filter that only uses the
-centroid. The result can be used in the motion model of the Kalman
-filter. 
+centroid. The result can then be used in the motion model of the
+Kalman filter what increases the robustness against failures of
+ICP. As initialization either the alignment of the centroids is used
+or the result of the Kalman filter that uses the centroids as
+described before.
+
+The performances of the ICP variants with a Kalman filter as motion
+model is shown in Figure~\ref{fig:rms-runtime}. The variant with
+centroid initialization performs $11.7\%$ better than the simple
+Kalman filter thus much better than the basic ICP algorithim without a
+motion model. If the initial alignment is computed by a first Kalman
+filter, we achieve the best performance of all baseline variants with
+an RMS error of $0.63\mathrm{~m/s}$. The method presented in this
+report achieves with $0.43\mathrm{~m/s}$ a lower RMS error than all
+baseline methods. It is more robust than ICP because it does not
+depend on a good initialization what is due to the global search of
+the annealed dynamic histogram.
+\textcolor{red}{at the same time faster, only kalman faster but...,
+  accuracy-distance, color improvement}
+
+
+
 \subsection{Model Crispness}
 \label{sub:model-crispness}
 
