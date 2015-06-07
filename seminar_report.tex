@@ -1131,8 +1131,9 @@ objects with a distance greater than $70$m, the method yields an RMS
 error of $1.8\mathrm{~m/s}$. When comparing the method with and
 without usage of the color in the measurement model, the RMS error is
 decreased by $10.4\%$ although the test dataset has problems with lens
-flare and bad lightening which was for example caused by heavy
-shadows. In Figure~\ref{fig:rms-runtime} only the version with color
+flare and bad lightening. The bad lightening mainly was caused by heavy
+shadows because the sensor data was recorded around sundown.
+In Figure~\ref{fig:rms-runtime} only the version with color
 estimation is plotted. It can be expected that the advantage from
 using color in the measurement model is even larger under better
 conditions.  Also the improvement in the accuracy from aligning the
@@ -1166,10 +1167,99 @@ probability threshold $p_{min}$ can be expanded in one step. Expanding
 all cells that exceed the threshold has RMS error that is $46.4\%$
 higher at the same runtime compared to the other strategy.
 
-
+\textcolor{red}{Error analysis 21ff}
 
 \subsection{Model Crispness}
 \label{sub:model-crispness}
+The prevoius approach to generate test data by tracking static
+objects in a local reference frame already provided many insights into
+the performance of the tracker. However, in this approach only
+detected cars were considered. To evaluate how the tracker performs
+on the variaty of objects present in real traffic, another approach is
+necessary. With the tracking alignment which is computed frame for
+frame, the point clouds can be joint to build a model of the tracked
+object. How single point clouds of the objects and the final result
+that contains all point clouds for the object look like is shown in
+Figure~\ref{fig:build-models}.
+\begin{figure}
+  \center
+  \includegraphics[width=.7\linewidth]{build-models}
+  \caption{Models of tracked objects build by joining point clouds
+    according to the computed frame-to-frame alignment. At the top
+    single frame of the objects are shown~\cite{paper}.}
+  \label{fig:build-models}
+\end{figure}
+These models are build from the recorded sensor data of normal trips
+of the car through real traffic. Therefore, it allows measuring the
+performance in the real world. Two test datasets were used that were
+recorded around noon and with about a half year in between. Thus, in
+addition to the approach from the previous section, different seassons
+and times of day were evaluated. The two test sets provide a total
+amount of $135$ pedestrians, $79$ bicycles, and $63$ moving
+cars. Therefore, the data contains a variaty of of different objects.
+
+To measure the accuracy of the tracker, a metric called crispness
+score is introduced~\cite{crispness}.\textcolor{red}{add reference.}
+This metric measures how accurate the model was build by analyzing
+how noisy the model is. Good tracking results in better frame to frame
+alignments and thus in more clear
+models. Figure~\ref{fig:good-bad-model} shows the difference of a
+model build with the tracker presented in this report and the less
+precise ICP tracker improved with the motion model of a Kalman filter.
+\begin{figure}
+  \center
+  \subfigure[Tracker presented in this report]{%
+    \includegraphics[height=.32\linewidth]{model-adh}
+  }
+  \subfigure[Kalman ICP tracker]{%
+    \includegraphics[height=.32\linewidth]{model-icp}
+  }
+  \caption{Comparison of the model build with differently precise trackers~\cite{paper}.}
+  \label{fig:good-bad-model}
+\end{figure}
+The crispness score can be computed by
+\begin{equation}
+  \frac{1}{T^2}\sum_{i=1}^T\sum_{j=1}^T\frac{1}{n_i}\sum_{k=1}^{n_i}G(x_k-\hat{x}_k,2\Sigma)
+\end{equation}
+where $T$ is the number of frames the object was observed, $n_i$ is
+the amount of points in frame $i$ and $\hat{x}_k$ is the point in
+frame $j$ which is nearest to the point $x_k$ in frame $i$, and G is a
+multi-variate Gaussian for which $\Sigma$ encodes the penalty for
+matches of different distances~\cite{crispness,paper}. The crispness
+score is in the interval $[0,1]$ and a higher score means that the
+build model is more accurate.
+
+Table~\ref{tab:crisp} shows the crispness scores for the annealed
+dynamic histogram tracker, a simple Kalman filter, and ICP with a
+Kalman filter as motion model. The scores are devided by the tracked
+object classes to show how the object class influences the accuracy.
+\begin{table}
+  \center
+  \includegraphics[width=.8\linewidth]{crispness-scores}
+  \caption{Comparison of the crispness score for different trackers
+    devided by the tracked object class~\cite{paper}.}
+  \label{tab:crisp}
+\end{table}
+For the data in the table, only frames with at least $200$ points are
+used. The simple Kalman filter performs reasonable well through all
+object classes. The Kalman ICP method performs well on cars but
+significantly worse on pedestrians and bicycles. This is caused by the
+more flexible 3D shape of pedestrians and bicycles. A car has a static
+shape which makes the alignment easy for ICP. Pedestrians move their
+legs and arms and therefore have a changing shape over different
+frames. Also bicyclists are hard to align with ICP because their shape
+has many not well defined faces that cause ICP to get stuck in a local
+optimum. The tracking method with annealed dynamic histograms performs
+best in all three object classes. Intuitively, it could be expected
+that the crispness score for cars would have to be better than for
+pedestrians and bicycles because of the static shape. However, this is
+not the case. The authors of the paper do not mention why. A possible
+explenation would be that the tracked cars have a higher velocity
+relative to the tracking car and thus the estimation is less acurate.
+The evaluation with the crispness score shows that the proposed
+tracking method performs better than all baseline methods across all
+object classes and with real-world data.
+
 
 % +++++++++++++++++++++++++
 \section{Conclusion}
