@@ -80,11 +80,11 @@
   areas. To counter the additionally error of the coarse resolution,
   the measurement model takes the resolution into account and anneals
   the model as the resolution is improved. Evaluation of the method
-  shows that is outperforms all common baseline methods which are a
+  shows that is outperforms all common baseline methods which are the
   Kalman filter and ICP with various improvements. The method achieves
   with similar runtime an at least $25\%$ lower RMS tracking
   error. Furthermore, the tracker is robust against occlusion,
-  viewpoint and lighting changes, and various object classes.
+  viewpoint and lighting changes, and variation in the object classes.
 \end{abstract}
 
 \tableofcontents
@@ -230,7 +230,6 @@ annealed and approaches the true posterior.
 
 The evaluation in Section~\ref{sec:evaluation} shows that the method
 outperforms other tracking methods by about $10\%$.
-\textcolor{red}{Maybe add more evaluation intro?}
 
 % +++++++++++++++++++++++++
 \section{Related Work}
@@ -629,28 +628,29 @@ coordinate system origin.
 \subsection{Adding Color and Motion}
 \label{sub:adding-color}
 So far, the measurement model considers the 3D shape of the object to
-tell us how likely it is that a state causes the measured point
-cloud. To increase the robustness and precision of the tracker, we
-also want to consider clues from motion and color. This especially
+compute how likely it is that a state causes the measurement.
+To increase the robustness and precision of the tracker, we
+also want to consider clues from motion and color~\cite{paper}. This especially
 improves the performance in comparison to ICP which only uses the
-object shape~\cite{paper}.
+object shape and has no motion model.
 
 \subsubsection{Motion Model}
 For the motion model, we use a constant velocity model of a Kalman
-filter~\cite{prob-rob}. In each iteration, the Kalman filter algorithm
-is fed in the measurement step with a Gaussian that represents the
+filter~\cite{prob-rob}. In each iteration, the Kalman filter performs
+a measurement step and a motion step. In the measurement step, the algorithm
+is fed with a Gaussian that represents the
 probabilities for the states to cause the current
-measurement. Furthermore, in the motion step of each iteration the
+measurement. In the motion step, the
 expected motion of the object in the time till the last iteration is
 applied to the position of the object. Both steps are computed by
 combining two Gaussians. As a result, the algorithm gives a Gaussian
 for the position and motion of the object.
 
 We just need to give the algorithm a Gaussian for the measurement
-step. For this we can use the results of the measurement model that
-have to be represented as a Gaussian. This can be done by computing
-the mean $\mu_t$ and variance $\Sigma_t$ for all states weighted by
-the probability $p(x_t|z_1,...,z_t)$.
+step. For this, we can use the results of the measurement model that
+has to be represented as a Gaussian. This can be done by computing
+the mean $\mu_t$ and variance $\Sigma_t$ over all states weighted by
+their probability $p(x_t|z_1,...,z_t)$.
 \begin{align}
 \label{eq:motion-model}
 & \mu_t=\sum_i p(x_{t,i}|z_1,...,z_t)x_{t,i}\nonumber\\
@@ -665,43 +665,42 @@ Section~\ref{sec:evaluation}, this model can be used to implement the
 tracker and yields reliable results. Although we also want to add
 color information to the model, this is important because color
 information is not always available (e.g. when the autonomous car is
-driving in the dark). To incorporate the fact, that the color of the
-surface points should match between two successive frames, into the
-model, we first need to learn the probability distribution of color
+driving in the dark). To incorporate into the model, that the color of the
+surface points should match between two successive frames,
+we first need to learn the probability distribution of color
 matchings. This can be done by analyzing a dataset with already known
 alignments. For an autonomous car, such a dataset can be easily
 obtained by driving in a static environment (e.g. along a row of
 parked cars). The alignment of the tracked objects can then be
 computed with the speed of the car and the position of the tracked
-object relative to the car. For the analyzing of color matchings, then
+object relative to the car. For the analysis of color matchings, then
 the nearest points of two subsequent measurements can be used. It is
 reasonable to use only the correspondence pairs with a distance under
-a certain threshold ($5\mathrm{cm}$) was used by the authors of the
+a certain threshold ($5\mathrm{cm}$ was used by the authors of the
 paper). Although it would be intuitive to use all available color
 channels, we use only the blue color channel. This simplifies the
 problem, because we do not need to learn the covariance between the
-color channels, and already increases the performance of the
-method. The blue color channel was chosen by experiments with a
-validation set.  The resulting distribution for color differences
+color channels. The blue color channel was chosen by experiments with a
+validation set and already increases the performance of the
+method. The resulting distribution for color differences
 follows a Laplacian distribution.
-\textcolor{red}{maybe add distribution figure}
 To include the color distribution into our measurement model, we
 extend the calculation of the term $p(s_{t,i}|s{t-1},V)$ what is
 intuitive because the color is a property of the surface and, to know
 the color, the point has to be visible in the previous frame:
 \begin{equation}
-  p(s_{t,i}|s{t-1},V) = p_s(s_{t,i}|s{t-1},V) p_c(s_{t,i}|s{t-1},V)
+  p(s_{t,i}|s_{t-1},V) = p_s(s_{t,i}|s_{t-1},V) p_c(s_{t,i}|s_{t-1},V)
 \end{equation}
-where $p_s(s_{t,i}|s{t-1},V)$ is the probability for the spatial
-matching as before and $p_c(s_{t,i}|s{t-1},V)$ is the probability for
-the color match. For the term $p_c(s_{t,i}|s{t-1},V)$ it does not
+where $p_s(s_{t,i}|s_{t-1},V)$ is the probability for the spatial
+matching as before and $p_c(s_{t,i}|s_{t-1},V)$ is the probability for
+the color match. For the term $p_c(s_{t,i}|s_{t-1},V)$, it does not
 suffice just to use the learned color model. This is due to changes in
 lighting, lens flare, and other cases that can change the observed
 colors significantly. Therefore, we need to introduce a probability
 $p(\neg C)$ for cases where the learned color model can not be
 applied. Now we can refine the probability for a color match:
 \begin{align}
-p_c(s_{t,i}|s{t-1},V)
+p_c(s_{t,i}|s_{t-1},V)
   = &p(C)p_c(s_{t,i}|s_{t-1},V,C)+ \nonumber\\
 &p(\neg C)p_c(s_{t,i}|s_{t-1},V,\neg C)\nonumber
 \end{align}
@@ -724,9 +723,9 @@ $p(C)$ as function of the sampling resolution:
 with sampling resolution $r$ (as interval size, not as number of
 intervals), parameter $p_c$ for the probability with ideal resolution
 $r=0$, and parameter $\sigma_c$ which defines how fast $p(C)$ decreases
-with increasing resolution.
+with improving resolution.
 
-Now we can revise measurement probability by
+Now we can revise the measurement probability by
 using the color probability
 \begin{align}
   p_c(z_{t,i}|x_t,z_{t-1},V) 
@@ -737,8 +736,8 @@ what results in
 \begin{equation}
 \label{eq:mm-color-compute}
 p(z_t|x_t,z_{t-1}) = \eta\left(\prod_{z_{t,i}\in z_t}
-p_s(z_{t,i}|x_t,z{t-1})p_c(z_{t,i}|x_t,z{t-1},V)
-+ k_3(k_4 - p_s(z_{t,i}|x_t,z{t-1}))
+p_s(z_{t,i}|x_t,z_t-1})p_c(z_{t,i}|x_t,z_t-1},V)
++ k_3(k_4 - p_s(z_{t,i}|x_t,z_t-1}))
 \right)
 \mathrm{ . }
 \end{equation}
@@ -752,10 +751,10 @@ With the measurement model we have derived up to now, the probability
 for the current measurement given an assumed state can be computed. To
 search the state space for the state that is most likely given the
 measurement, we use an \textit{annealed dynamic
-  histogram}~\cite{paper}. We use a histogram because it allow to
+  histogram}~\cite{paper}. We use a histogram because it allows to
 globally search the state space, in contrast to ICP, and to have
 multiple hypothesis. The histogram divides the state space into grid
-cells. For each of these grid cells we compute the probability
+cells. For each of these grid cells, we compute the probability
 $p(x_t|z_1,...,z_t)$. In an ordinary histogram, it would be necessary
 to densely sample the state space to get a precise result. This would
 be computationally costly and prevents the use in a system with
@@ -765,7 +764,7 @@ sampled. Subsection~\ref{sub:refinement} describes how the annealed
 dynamic histogram is initialized with a coarse resolution and is then
 dynamically refined to increase the density in the important
 areas. Though, the coarse resolution and the dynamically change of it
-have the drawback that in the areas with coarse resolution the
+have the drawback that in the areas with coarse resolution, the
 measurements are less likely to fit than in the densely sampled
 areas. How this problem is solved by considering the resolution of a
 grid cell in the measurement model is presented in
@@ -786,7 +785,7 @@ returned as result is shown in Subsection~\ref{sub:adh-resulting}.
     \includegraphics[height=.22\linewidth]{adh-step}
     \label{fig:adh-step}
   }
-  \subfigure[Further subdivision \textcolor{red}{details}]{%
+  \subfigure[Further subdivision of multiple cells in one step]{%
     \includegraphics[height=.22\linewidth]{adh-final}
     \label{fig:adh-final}
   }
@@ -803,7 +802,7 @@ divided state space and compute the sample alignment probability
 $p(x_t|z_1,...,z_t)$ for each cell. Figure~\ref{fig:adh-init} shows an
 example initialization. Then a cell is chosen to be divided into $k$
 sub-cells as in Figure~\ref{fig:adh-step} and~\ref{fig:adh-final}. For
-the new created cells, the sample alignment probability is computed
+the newly created cells, the sample alignment probability is computed
 again. To compute the probabilities for the new sub-cells, we first
 define $|c|$ as the volume of cell $c$ and $R$ as the region of cell
 we chose to subdivide into sub-cells $c_i$. This region does not have
@@ -814,7 +813,7 @@ p(c_i)
 &=p(c_i\cap R)\nonumber\\
 &=p(c_i|R)p(R)\nonumber\\
 &=\frac{p(x_i|z_1,...,z_t)|c_i|}{\sum_{c_j\in
-    R}p(x_j|z_1,...,z_t)|c_{j\mathrm{ \textcolor{red}{ not i right?}}}|}p(R)\nonumber\\
+    R}p(x_j|z_1,...,z_t)|c_{j}|}p(R)\nonumber\\
 &=\eta p(x_i|z_1,...,z_t)p(R)
 \end{align}
 Thus, the intuitive property $\sum_{c_i\in R}p(c_i)=p(R)$
@@ -828,7 +827,7 @@ subdivisions result in a more definite distribution of probabilities
 in the sub-cells. In other words, the probability of the cell to divide
 is condensed in a few sub-cells instead of uniformly distributed. 
 To measure this information gain, we inspect the distribution in the
-possible sub-cells before and after dividing. Let distribution $B$ be
+possible sub-cells before and after dividing. Let distribution $B$ be the
 currently estimated distribution in the sub-cells before
 dividing. Because we only know the probability of the parent-cell, we
 assume that this probability is equally distributed among the sub-cells
@@ -836,7 +835,7 @@ as illustrated in the left of Figure~\ref{fig:adh-criteria}.
 \begin{figure}
   \center
   \includegraphics[width=0.55\linewidth]{devision-criteria}
-  \caption{Before dividing a parent-cell we assume that its
+  \caption{Before dividing a parent-cell, we assume that its
     probability is equally distributed among the $k$ sub-cells. After
     dividing, each sub-cell has its own probability.~\cite{paper}.}
   \label{fig:adh-criteria}
@@ -868,7 +867,7 @@ when the probability $P_i$ of the parent-cell is uniformly divided
 among the sub-cells. This is truly the minimum value because the
 KL-divergence is always non-negative~\cite{kl-divergence} and in this
 case there is no profit in dividing this parent-cell. With
-Equation~\ref{eq:max-kl} we can derive that the maximum KL-divergence
+Equation~\ref{eq:max-kl}, we can derive that the maximum KL-divergence
 per second is $P_i \frac{\mathrm{ln } (k)}{kt}$ where $t$ is the time
 to compute a probability for a sub-cell with the measurement
 model. Because $k$ is constant and $t$ should roughly be the same over
@@ -898,8 +897,8 @@ expected to be smaller for a better resolution, $\Sigma_g$ is
 expressed as a function proportional to the resolution in the
 currently inspected cell. The updated variance of the measurement
 model then is $\Sigma = 2\Sigma_e+\Sigma_r+\Sigma_g$. As the
-resolution improves, the term for $\Sigma_g$ decreases towards $0$ and
-the variance converges against the value as before. Therefore, the
+resolution improves, the term for $\Sigma_g$ decreases towards $0$.
+Therefore, the
 measurement model is annealed as the resolution is improved.
 
 
@@ -916,7 +915,8 @@ would be used in an autonomous car, also the complete probability
 distribution as a density tree could be returned~\cite{density-tree}.
 Using the mean of the distribution has the advantage that this would
 minimize the \textit{Root-Mean-Square error (RMS error)} as shown
-in~\cite{paper}. \textcolor{red}{Probably show this?}.
+in~\cite{paper}.
+%\textcolor{red}{estimating rotation}
 
 % +++++++++++++++++++++++++
 \section{Evaluation}
@@ -943,7 +943,7 @@ the amount of incorrect detections (e.g. false
 positives). \textit{Multiple object detection precision (MODP)}
 measures the position detection in single frames (e.g. to find the
 centroid). These three metrics are not applicable here, because the
-presented method is not responsible for these problems. The metric
+presented method is not responsible to solve these problems. The metric
 called \textit{multiple object tracking precision (MOTP)} would be
 suitable for the method because it only evaluates the precision of the
 position estimation given a correct matching~\cite{mot,mot2}. However,
@@ -959,8 +959,8 @@ state is relative to the objects position in the previous frame and
 mainly used for estimating the velocity with the motion model. The
 absolute position of the tracked object can easily be computed as the
 centroid of the point cloud and thus has not to be evaluated here. In
-this evaluation, the RMS error is averaged over all tracked objects. The
-RMS error is widely used and has the property to give large errors a
+this evaluation, the RMS error is averaged over all tracked
+objects. It is a widely used metric and has the property to give large errors a
 higher influence than many small ones have. A problem with the RMS
 error is that it significantly depends on the distance to the tracked 
 object. Intuitively, the
@@ -969,7 +969,7 @@ objects because the point clouds have less measurement
 points. Because the RMS error is averaged over all tracked objects,
 distant objects are have a higher influence on the error than near
 ones. This could be changed by using the RMS error in relation to the
-distance, but was not done by the authors of~\cite{paper}.
+distance~\cite{paper}.
 
 To properly evaluate the performance of the tracker, a large dataset
 with many different objects to track is needed, because in practice an
@@ -990,7 +990,7 @@ Subsection~\ref{sub:relative-ref-frame}, the car drives in a
 parking space where the tracked objects are not moving. By assuming
 that the car is standing still, the tracked objects seem to be
 moving and their  velocity can be tracked. The results can
-be compared to the velocity calculated with the cars movement and the
+be compared to the velocity calculated with the movement of the car and the
 distance to the tracked object. The second approach is described in
 Subsection~\ref{sub:model-crispness} and utilizes a recorded dataset
 from the car driving in real traffic. Using the relative positions of
@@ -1033,11 +1033,11 @@ and color changes due to reflections from different viewpoints are
 similar to driving in traffic. During the recording, the linear and
 rotational velocity of the tracking car is logged. With this
 information, the ground-truth velocity of the tracked objects can be
-computed. When the car is driving just forward this is easy. When the car
+computed. When the car is driving just forward, this is easy. When the car
 is turning, the relative position of the tracked objects is used
 additionally. Because of many objects being inside and outside the
 turning circle of the car, the distribution of velocities of the
-tracked objects is wider than the simple velocity distribution of the
+tracked objects is wider than the velocity distribution of the recording
 car. These velocity distributions are plotted in
 Figure~\ref{fig:rel-ref-frame-vel} and~\ref{fig:rel-ref-frame-rot}.
 \begin{figure}
@@ -1063,14 +1063,14 @@ occurs when multiple nearby objects are not distinguished in the
 segmentation step and therefore wrongly detected as one object. These
 tracks are filtered out because of the ambiguity in the ground-truth
 velocity. Tracks with oversegmentation, where one object is split into
-multiple peaces is not filtered out.
+multiple pieces, is not filtered out.
 
 We now compare the performance of the proposed tracking method with
 several widely used baseline methods. One the one hand, we compare the
 RMS error and on the other hand the mean runtime.
 Figure~\ref{fig:rms-runtime} shows the results of the
 comparison. Plotted are RMS errors at different mean runtimes for the
-method presented in this report as well as four other baseline methods.
+method presented in this report as well as for other baseline methods.
 
 The first baseline method we use for comparison is a Kalman filter that
 uses only the centroid of point cloud in a frame in its measurement
@@ -1089,16 +1089,17 @@ dynamic improvement steps.
   \includegraphics[width=.45\linewidth]{rms-vs-runtime}
   \caption{Comparison of the proposed method with annealed dynamic
     histograms with other baseline methods. Plotted is the RMS error
-    for different runtimes of the algorithm~\cite{paper}.}
+    for different runtimes~\cite{paper}.}
   \label{fig:rms-runtime}
 \end{figure}
 
 Furthermore, we analyze the performance of ICP in different
 variants. These variants differ in the initialization of ICP and
-whether they are used as a measurement model in for Kalman
+whether they are used as a measurement model in a Kalman
 filter. The basic point-to-point ICP algorithm is described
-in~\cite{icp-basic} and uses the centroid of the point clouds to align
-as initialization. The algorithm was run with up to $100$ incremental
+in~\cite{icp-basic} and uses the centroids of the point clouds as
+alignment-initialization.
+The algorithm ran with up to $100$ incremental
 alignment iterations. The RMS error with different mean runtimes is
 shown in Figure~\ref{fig:rms-runtime} and is about
 $1\mathrm{~m/s}$. This is $23\%$ worse than the RMS error of a simple
@@ -1110,7 +1111,7 @@ velocity of the tracked object. Therefore, a single incorrect
 alignment as, for example, show in Figure~\ref{fig:icp} significantly
 impacts the tracking error. A Kalman filter with its motion model
 can refine the result of many more previous alignments into one
-Gaussian distribution and can compensate wrong alignments because the
+Gaussian distribution and can compensate for wrong alignments because the
 certainty of a measurement can be considered as variance when feeding
 the measurement into the Kalman filter. 
 
@@ -1118,7 +1119,7 @@ By combining the Kalman filter and ICP into one method, the drawbacks
 of both methods can be removed. ICP can be used as measurement model
 to align the point clouds in successive frames what removes the
 information loss in the basic Kalman filter that only uses the
-centroid. The result can then be used in the motion model of the
+centroid. The result can then be used in the motion model of another
 Kalman filter what increases the robustness against failures of
 ICP. As initialization either the alignment of the centroids is used
 or the result of the Kalman filter that uses the centroids as
@@ -1142,7 +1143,7 @@ allows getting a result much earlier before ICP has finished its first
 iteration. However, this early results have a much higher RMS
 error. The only baseline method that has a better accuracy at a
 specific runtime is the pure Kalman filter which is outperformed at a
-larger runtime. As described before the RMS error depends on the
+larger runtime. As described before, the RMS error depends on the
 distance to the tracked object. For near objects with a distance
 smaller than $5$m, the RMS error is about $0.15\mathrm{~m/s}$. For
 objects with a distance greater than $70$m, the method yields an RMS
@@ -1152,7 +1153,7 @@ decreased by $10.4\%$ although the test dataset has problems with lens
 flare and bad lightening. The bad lightening mainly was caused by heavy
 shadows because the sensor data was recorded around sundown.
 In Figure~\ref{fig:rms-runtime} only the version with color
-estimation is plotted. It can be expected that the advantage from
+usage is plotted. It can be expected that the advantage from
 using color in the measurement model is even larger under better
 conditions.  Also the improvement in the accuracy from aligning the
 smaller point cloud to the larger one instead of aligning the current
@@ -1172,9 +1173,9 @@ combination of used improvements.
   \label{fig:adh-vs-dense}
 \end{figure}
 
-Because the annealed dynamic histogram is also a new approach, it is
+Because the annealed dynamic histogram is a new approach, it is
 also evaluated here. Figure~\ref{fig:adh-vs-dense} shows the runtime
-and accuracy of the annealed dynamic histogram compared to a ordinary
+and accuracy of the annealed dynamic histogram compared to an ordinary
 histogram with a densely sampled state space. The densely sampled
 histogram is about $138$ times slower than the annealed dynamic
 histogram for the approximately same accuracy. Furthermore, also the
@@ -1182,10 +1183,11 @@ different strategies for cell expansion are evaluated. On the one
 hand, only the cell with the highest probability can be expanded in
 each iteration and on the other hand all cells that exceed the
 probability threshold $p_{min}$ can be expanded in one step. Expanding
-all cells that exceed the threshold has RMS error that is $46.4\%$
-higher at the same runtime compared to the other strategy.
+only the cell with the highest probability leads to an RMS error that
+is $46.3\%$ higher than using the other strategy. Thus, it is clear that
+all cells should be expanded if they exceed the threshold.
 
-\textcolor{red}{Error analysis 21ff}
+%\textcolor{red}{Error analysis 21ff}
 
 \subsection{Model Crispness}
 \label{sub:model-crispness}
@@ -1196,15 +1198,14 @@ detected cars were considered. To evaluate how the tracker performs
 on the variety of objects present in real traffic, another approach is
 necessary. With the tracking alignment which is computed frame for
 frame, the point clouds can be joint to build a model of the tracked
-object. How single point clouds of the objects and the final result
-that contains all point clouds for the object look like is shown in
-Figure~\ref{fig:build-models}.
+object. Figure~\ref{fig:build-models} shows how single point clouds of the objects and the final result
+that contains all point clouds look like.
 \begin{figure}
   \center
   \includegraphics[width=.7\linewidth]{build-models}
   \caption{Models of tracked objects build by joining point clouds
-    according to the computed frame-to-frame alignment. At the top
-    single frame of the objects are shown~\cite{paper}.}
+    according to the computed frame to frame alignment. At the top
+    single frames of the objects are shown~\cite{paper}.}
   \label{fig:build-models}
 \end{figure}
 These models are build from the recorded sensor data of normal trips
@@ -1212,15 +1213,16 @@ of the car through real traffic. Therefore, it allows measuring the
 performance in the real world. Two test datasets were used that were
 recorded around noon and with about a half year in between. Thus, in
 addition to the approach from the previous section, different seasons
-and times of day were evaluated. The two test sets provide a total
+and times of day were evaluated. The two test sets have sensor data of
+a total
 amount of $135$ pedestrians, $79$ bicycles, and $63$ moving
-cars. Therefore, the data contains a variety of of different objects.
+cars. Therefore, the data contains a variety of different objects.
 
 To measure the accuracy of the tracker, a metric called crispness
 score is introduced~\cite{crispness}.
 This metric measures how accurate the model was build by analyzing
-how noisy the model is. Good tracking results in better frame to frame
-alignments and thus in more clear
+how noisy the model is. Good tracking yields better frame to frame
+alignments and thus more clear
 models. Figure~\ref{fig:good-bad-model} shows the difference of a
 model build with the tracker presented in this report and the less
 precise ICP tracker improved with the motion model of a Kalman filter.
@@ -1288,7 +1290,7 @@ cars. The proposed method uses clues from the the 3D shape, color, and
 motion of the tracked object. A measurement model derived from a
 Dynamic Bayesian Network is used to compute the probability for a
 position and velocity of the tracked object given the current and
-previous measurement consisting of a point cloud and color information
+previous measurements consisting of a point cloud and color information
 for these points.  To find the most likely position and velocity, the
 state space is globally searched with an annealed dynamic
 histogram. The annealed dynamic histogram starts with a coarse
@@ -1306,7 +1308,7 @@ significantly worse than the proposed method, even with the improved
 variants which add a motion model and different initializations. This
 is due to its search for a local optimum.
 The proposed method performs well on real-world data, different object
-classes, and when there are problems with the color information.
+classes, and even problemetic color information.
 Evaluation data was created by tracking static objects with a moving car in
 a local reference and by building object models and measuring their
 crispness score.
