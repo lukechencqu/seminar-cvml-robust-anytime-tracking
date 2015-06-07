@@ -1260,10 +1260,63 @@ The evaluation with the crispness score shows that the proposed
 tracking method performs better than all baseline methods across all
 object classes and with real-world data.
 
-
 % +++++++++++++++++++++++++
 \section{Conclusion}
 \label{sec:conclusion}
+In this report, the tracking method to estimate the position and
+velocity presented in~\cite{paper} was described. Robust tracking is
+necessary in many robotic applications, especially for autonomous
+cars. The proposed method uses clues from the the 3D shape, color, and
+motion of the tracked object. A mesurement model derived from a
+Dynamic Bayesian Network is used to compute the probability for a
+position and velocity of the tracked object given the current and
+previous measurement consisting of a point cloud and color information
+for these points.  To find the most likely position and velocity, the
+state space is globally searched with an annealed dynamic
+histogram. The annealed dynamic histogram starts with a coarse
+sampling resolution which is dynamicall improved in the important
+areas. Because the coarse resolution introduces an error, the
+measurement model considers the resolution and thus is annealed as the
+resolution improves.  The computed alignment is then fed into a Kalman
+filter that models the motion of the object.
+
+The evaluation showed that the proposed tracking method outperforms
+all common baseline methods, namely a simple Kalman filter and
+different variants of ICP. The Kalman filter is faster than the
+proposed method but less accurate. With the same runtime, ICP performs
+significantly worse than the proposed method, even with the improved
+variants which add a motion model and different initializations. This
+is due to its search for a local optimum.
+The proposed method performs well on real-world data, different object
+classes, and when there are problems with the color information.
+Evaluation data was created by tracking static objects with a moving car in
+a local reference and by building object models and measureing their
+crispness score.
+
+The authors of~\cite{paper} did not evaluate the performance of the
+tracker in other domains and with other sensors. Especially, the
+performance of the tracker with point clouds created by stereo cameras
+would be interesting because stereo cameras are cheaper and more
+widespread than the laser sensors used here. The challenge with stereo
+data is the larger noise. The method could be configured to this
+change by customizing the introduced parameters, for example the
+sensor variance. It can be argued that the proposed method probably
+also performs better on stereo data than ICP because the main problem
+of ICP, getting stuck in local optima, is also a problem in stereo
+data. Maybe the difference between the proposed method and ICP is even
+larger because of the larger noise.
+
+The implementation of the proposed method is Open Source and can be
+found on the project page of the presented work:
+
+{\centering{\mathrm{\url{http://stanford.edu/~davheld/DavidHeld_files/RSS2014_Poster.pdf}}}\\}
+
+The implementation is easy to setup, configure, and include into other
+C++ projects.
+
+The tracking accuracy probided by annealed dynamic histograms and the
+combination of 3D shape, color, and motion is an important step
+towards robust tracking and thus safe and autonomous cars.
 
 
 % =========================================================================
