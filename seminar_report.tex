@@ -68,12 +68,12 @@
 \begin{abstract}
   Object tracking is a critically important task in many robotic
   applications, especially for autonomous cars. Although there are
-  already various approaches, low accuracy and poor robustnes because
+  already various approaches, low accuracy and poor robustness because
   of challenges, such as occlusion, viewpoint changes, and various
   object classes, still are a problem. The proposed method uses a
   probabilistic approach to combine cues from the 3D shape, color, and
   motion of the tracked objects. A so called annealed dynamic
-  histogram is used to globaly search the state space for the most
+  histogram is used to globally search the state space for the most
   likely position and velocity of the tracked object. This histogram
   is faster than ordinary ones because it is initialized with a coarse
   resolution and dynamically improve the resolution in the important
@@ -83,7 +83,7 @@
   shows that is outperforms all common baseline methods which are a
   Kalman filter and ICP with various improvements. The method achieves
   with similar runtime an at least $25\%$ lower RMS tracking
-  error. Furthermore, the tracker is robost against occlusion,
+  error. Furthermore, the tracker is robust against occlusion,
   viewpoint and lighting changes, and various object classes.
 \end{abstract}
 
@@ -311,7 +311,7 @@ ICP can return a wrong alignment after an unlucky initialization.
   \label{fig:icp}
 \end{figure}
 The approach presented in this report performs a global search and
-therefore has no problem with local maxima.
+therefore has no problem with local optima.
 
 \subsection{Alternative Sensors}
 \label{sub:slternative-sensors}
@@ -613,14 +613,14 @@ training data.
 The computation with Equation~\ref{eq:mm-compute} works well if the
 point clouds $z_t$ and $z_{t-1}$ have a similar size. Because of
 occlusion the size of the point clouds can vary. This is a problem
-because Equation~\ref{eq:mm-compute} is not symmectric with respect to
+because Equation~\ref{eq:mm-compute} is not symmetric with respect to
 $z_t$ and $z_{t-1}$. For example when a part of the detected object
 becomes unoccluded in comparison to the previous frame, $z_t$ is
 larger than $z_{t-1}$ and therefore each point in $z_t$ that has no
 nearby correspondence in $z_{t-1}$ adds a large penalty. This would
 result in an incorrect alignment because the tracker would try to
-minimize the number of badly matchable points and therefore focuses on
-aligning the densest parts of the pointclouds. This problem can be
+minimize the number of badly aligned points and therefore focuses on
+aligning the densest parts of the point clouds. This problem can be
 solved by exchanging $z_t$ and $z_{t-1}$ so that always the smaller
 point cloud is aligned in the larger one. In the case of such an
 exchange, the implementation also has to consider the switch of the
@@ -664,7 +664,7 @@ and motion of tracked objects. As presented in the evaluation in
 Section~\ref{sec:evaluation}, this model can be used to implement the
 tracker and yields reliable results. Although we also want to add
 color information to the model, this is important because color
-information is not always availale (e.g. when the autonomous car is
+information is not always available (e.g. when the autonomous car is
 driving in the dark). To incorporate the fact, that the color of the
 surface points should match between two successive frames, into the
 model, we first need to learn the probability distribution of color
@@ -676,10 +676,10 @@ computed with the speed of the car and the position of the tracked
 object relative to the car. For the analyzing of color matchings, then
 the nearest points of two subsequent measurements can be used. It is
 reasonable to use only the correspondence pairs with a distance under
-a certain threshold (5cm was used by the authors of the
+a certain threshold ($5\mathrm{cm}$) was used by the authors of the
 paper). Although it would be intuitive to use all available color
 channels, we use only the blue color channel. This simplifies the
-problem, because we do not need to learn the covariences between the
+problem, because we do not need to learn the covariance between the
 color channels, and already increases the performance of the
 method. The blue color channel was chosen by experiments with a
 validation set.  The resulting distribution for color differences
@@ -705,25 +705,25 @@ p_c(s_{t,i}|s{t-1},V)
   = &p(C)p_c(s_{t,i}|s_{t-1},V,C)+ \nonumber\\
 &p(\neg C)p_c(s_{t,i}|s_{t-1},V,\neg C)\nonumber
 \end{align}
-$p_c(s_{t,i}|s_{t-1},V,C)$ is the color distrubution learned from the
+$p_c(s_{t,i}|s_{t-1},V,C)$ is the color distribution learned from the
 training set. $p_c(s_{t,i}|s_{t-1},V,\neg C)$ is the probability for a
 point having any color that does not match the color in the previous
 frame. Because we use $256$ color intensities and we assume for
-simplicity that the colors are unifomly distributed, we can use
+simplicity that the colors are uniformly distributed, we can use
 $p_c(s_{t,i}|s_{t-1},V,\neg C) = \frac{1}{255}$.
 
 The probability $p(C)$ that the color of two corresponding points in
-successive frames should matchcould be trained again. Though, there is
+successive frames should match could be trained again. Though, there is
 a problem with the resolution of the sample in the annealed dynamic
-histogram. For coarse resolutions, the likelyhood of a color
-machting is smaller than for good resolutions. Therefore, we can model
+histogram. For coarse resolutions, the likelihood of a color
+matching is smaller than for good resolutions. Therefore, we can model
 $p(C)$ as function of the sampling resolution:
 \begin{equation}
   p(C) = p_c \mathrm{exp}\left( \frac{-r^2}{2\sigma_c^2} \right)
 \end{equation}
 with sampling resolution $r$ (as interval size, not as number of
 intervals), parameter $p_c$ for the probability with ideal resolution
-$r=0$, and parameter $\sigma_c$ which defines how fast $p(C)$ decreses
+$r=0$, and parameter $\sigma_c$ which defines how fast $p(C)$ decreases
 with increasing resolution.
 
 Now we can revise measurement probability by
@@ -756,17 +756,17 @@ measurement, we use an \textit{annealed dynamic
 globally search the state space, in contrast to ICP, and to have
 multiple hypothesis. The histogram divides the state space into grid
 cells. For each of these grid cells we compute the probability
-$p(x_t|z_1,...,z_t)$. In an ordinary histogram, it would be neseccary
-to densly sample the state space to get a precise result. This would
+$p(x_t|z_1,...,z_t)$. In an ordinary histogram, it would be necessary
+to densely sample the state space to get a precise result. This would
 be computationally costly and prevents the use in a system with
 real-time requirements. Therefore, we use a dynamic histogram where
-only the areas with a high probability are densly
-sampled. Subsection~\ref{sub:refinement} descibes how the annealed
+only the areas with a high probability are densely
+sampled. Subsection~\ref{sub:refinement} describes how the annealed
 dynamic histogram is initialized with a coarse resolution and is then
 dynamically refined to increase the density in the important
 areas. Though, the coarse resolution and the dynamically change of it
 have the drawback that in the areas with coarse resolution the
-measurements are less likely to fit than in the densly sampled
+measurements are less likely to fit than in the densely sampled
 areas. How this problem is solved by considering the resolution of a
 grid cell in the measurement model is presented in
 Subsection~\ref{sub:annealing}. How the tracking estimate can be
@@ -777,7 +777,7 @@ returned as result is shown in Subsection~\ref{sub:adh-resulting}.
 \label{sub:refinement}
 \begin{figure}
   \center
-  \subfigure[Initialization with a coarsly devided state space]{%
+  \subfigure[Initialization with a coarsely divided state space]{%
     \includegraphics[height=.22\linewidth]{adh-init}
     \label{fig:adh-init}
   }
@@ -792,22 +792,22 @@ returned as result is shown in Subsection~\ref{sub:adh-resulting}.
   }
   
   \caption{Dynamic refinement of an annealed dynamic histogram. The
-    grid cells devide the state space. The size of the circles
+    grid cells divide the state space. The size of the circles
     indicates the probability for the state in the cell given the
     measurements~\cite{paper}.}
   \label{fig:adh}
 \end{figure}
 
 To build the annealed dynamic histogram, we start with a coarsely
-devided state space and compute the sample alignment probability
+divided state space and compute the sample alignment probability
 $p(x_t|z_1,...,z_t)$ for each cell. Figure~\ref{fig:adh-init} shows an
-example initialization. Then a cell is chosen to be devided into $k$
-subcells as in Figure~\ref{fig:adh-step} and~\ref{fig:adh-final}. For
+example initialization. Then a cell is chosen to be divided into $k$
+sub-cells as in Figure~\ref{fig:adh-step} and~\ref{fig:adh-final}. For
 the new created cells, the sample alignment probability is computed
-again. To compute the probabilities for the new subcells, we first
+again. To compute the probabilities for the new sub-cells, we first
 define $|c|$ as the volume of cell $c$ and $R$ as the region of cell
-we chose to subdevide into subcells $c_i$. This region does not have
-to be contiguous. The new probability $p(c_i)$ of subcell $c_i$ can be
+we chose to subdivide into sub-cells $c_i$. This region does not have
+to be contiguous. The new probability $p(c_i)$ of sub-cell $c_i$ can be
 computed as follows:
 \begin{align}
 p(c_i)
@@ -819,32 +819,32 @@ p(c_i)
 \end{align}
 Thus, the intuitive property $\sum_{c_i\in R}p(c_i)=p(R)$
 holds. $\eta$ is again used for normalization and depends only on the
-the subcells in region $R$. Therefore, the probabilities of all cells
+the sub-cells in region $R$. Therefore, the probabilities of all cells
 outside of $R$ are not changed.
 
-Loosely speaking, the criteria that chooses which cells to devide in
-the next step, tries to maximize the information gain. Prefered
-subdevisions result in a more definite distribution of probabilities
-in the subcells. In other words, the probability of the cell to devide
-is condensed in a few subcells instead of uniformly distributed. 
+Loosely speaking, the criteria that chooses which cells to divide in
+the next step, tries to maximize the information gain. Preferred
+subdivisions result in a more definite distribution of probabilities
+in the sub-cells. In other words, the probability of the cell to divide
+is condensed in a few sub-cells instead of uniformly distributed. 
 To measure this information gain, we inspect the distribution in the
-possible subcells before and after deviding. Let distribution $B$ be
-currently estimated distribution in the subcells before
-deviding. Because we only know the probability of the parent-cell, we
-assume that this probability is equally distributed among the subcells
+possible sub-cells before and after dividing. Let distribution $B$ be
+currently estimated distribution in the sub-cells before
+dividing. Because we only know the probability of the parent-cell, we
+assume that this probability is equally distributed among the sub-cells
 as illustrated in the left of Figure~\ref{fig:adh-criteria}.
 \begin{figure}
   \center
   \includegraphics[width=0.55\linewidth]{devision-criteria}
-  \caption{Before deviding a parent-cell we assume that its
-    probability is equally distributed amoung the $k$ subcells. After
-    deviding, each subcell has its own probability.~\cite{paper}.}
+  \caption{Before dividing a parent-cell we assume that its
+    probability is equally distributed among the $k$ sub-cells. After
+    dividing, each sub-cell has its own probability.~\cite{paper}.}
   \label{fig:adh-criteria}
 \end{figure}
-After deviding the parent-cell, each of the $k$ subcell has its own
-probability and the only constraint is that the sum of the subcell
+After dividing the parent-cell, each of the $k$ sub-cell has its own
+probability and the only constraint is that the sum of the sub-cell
 probabilities has to match the parent-cells probability $\sum_{j=1}^k p_j=P_i$. The new
-distribution of probabilities amoung the subcells is called $A$ and is
+distribution of probabilities among the sub-cells is called $A$ and is
 a better approximation of the true posterior than $B$.
 
 This kind of information gain can be computed with the
@@ -855,8 +855,8 @@ KL-divergence with
 \begin{align}
   D_{KL}(A||B)=\sum_{j=1}^k p_j \mathrm{ln}\left(\frac{p_j}{P_i/k}\right)
 \end{align}
-where $A$ and $B$ are the distributions after and before deviding as
-described before. In the mostly prefered case of a subdevision,
+where $A$ and $B$ are the distributions after and before dividing as
+described before. In the mostly preferred case of a subdivision,
 $p_{j'}=P_i$ for one $j'$ and $p_j=0$ for all $j\neq j'$. This is also
 the case in which the KL-divergence has its maximum value
 \begin{align}
@@ -864,18 +864,18 @@ the case in which the KL-divergence has its maximum value
   \label{eq:max-kl}
 \end{align}
 The minimum value of the KL-divergence $D_{KL}(A||B)=0$ is reached
-when the probability $P_i$ of the parent-cell is uniformly devided
-amoung the subcells. This is truly the minimum value because the
+when the probability $P_i$ of the parent-cell is uniformly divided
+among the sub-cells. This is truly the minimum value because the
 KL-divergence is always non-negative~\cite{kl-divergence} and in this
-case there is no profit in deviding this parent-cell. With
+case there is no profit in dividing this parent-cell. With
 Equation~\ref{eq:max-kl} we can derive that the maximum KL-divergence
 per second is $P_i \frac{\mathrm{ln } (k)}{kt}$ where $t$ is the time
-to compute a probability for a subcell with the measurement
+to compute a probability for a sub-cell with the measurement
 model. Because $k$ is constant and $t$ should roughly be the same over
-the whole state spave, we have to devide the cells with the highest
+the whole state space, we have to divide the cells with the highest
 probability first to convert as fast as possible to the true
-posterior. If we want to devide all cells that have a higher
-probability than a threshold $p_{min}$, we can also devide all these
+posterior. If we want to divide all cells that have a higher
+probability than a threshold $p_{min}$, we can also divide all these
 cells in each iteration, as it is done in Figure~\ref{fig:adh}. This
 also yields a simple termination criteria. To maximize the the
 convergence speed to the true posterior, $k$ should be chosen as small
@@ -884,8 +884,8 @@ could be used.
 
 \subsubsection{Annealing}
 \label{sub:annealing}
-With the devision of cells into k subcells and the criteria to choose
-which cells to devide, we have a dynamic histogram that works in
+With the division of cells into k sub-cells and the criteria to choose
+which cells to divide, we have a dynamic histogram that works in
 principle. Because of the coarse resolution of the histogram,
 especially at the initialization, we can not expect to find a good
 alignment between the two point clouds in the current and previous
@@ -913,10 +913,10 @@ returned by the histogram. The simplest approach would be to return
 the mean and variance of the distribution. An alternative would be to
 return the mode of the distribution. For sophisticated planners which
 would be used in an autonomous car, also the complete probability
-distrubution as a density tree could be returned~\cite{density-tree}.
+distribution as a density tree could be returned~\cite{density-tree}.
 Using the mean of the distribution has the advantage that this would
 minimize the \textit{Root-Mean-Square error (RMS error)} as shown
-in~\cite{paper}. \textcolor{red}{Probabily show this?}.
+in~\cite{paper}. \textcolor{red}{Probably show this?}.
 
 % +++++++++++++++++++++++++
 \section{Evaluation}
@@ -933,16 +933,16 @@ such as ICP and Kalman filters.
 Although there are some existing evaluation methods for tracking, they
 mostly are not applicable or not suitable for the autonomous driving
 application. Many standard evaluation techniques are not applicable
-because the method we want to evaluate only focuses on a subpart of
+because the method we want to evaluate only focuses on a sub-part of
 tracking, namely position and velocity estimation. From the tracking
 evaluation techniques for tracking multiple objects, the metric called
 \textit{multiple object tracking accuracy (MOTA)} can not be used
-because it incorporates penailties for wrong assignments called id
+because it incorporates penalties for wrong assignments called id
 switches. \textit{Multiple object detection accuracy (MODA)} considers
 the amount of incorrect detections (e.g. false
 positives). \textit{Multiple object detection precision (MODP)}
 measures the position detection in single frames (e.g. to find the
-centroid). These three metrics are not aplicable here, because the
+centroid). These three metrics are not applicable here, because the
 presented method is not responsible for these problems. The metric
 called \textit{multiple object tracking precision (MOTP)} would be
 suitable for the method because it only evaluates the precision of the
@@ -972,10 +972,10 @@ ones. This could be changed by using the RMS error in relation to the
 distance, but was not done by the authors of~\cite{paper}.
 
 To properly evaluate the performance of the tracker, a large dataset
-with many different objects to track is needed, because in practise an
+with many different objects to track is needed, because in practice an
 autonomous car has to track many different objects with different
 shapes, color distributions, and motion patterns. Therefore, the
-aquisition of evaluation data has to be scalable. This excludes
+acquisition of evaluation data has to be scalable. This excludes
 methods as done by~\cite{unscalable-eval} where the tracking and
 tracked cars were equipped with additional sensors to measure the
 positions and velocities. The authors of the paper presented in this
@@ -1009,7 +1009,7 @@ annealed dynamic histogram, the variance $\Sigma_g=gI$ to anneal the
 measurement model, where $g$ is the cell resolution and $I$ is the
 identity matrix, and $p_c=0.05$ for the color model. This results in a
 low probability $p(C)$ for a color match because of many underexposed
-frames and frames with lense flare.
+frames and frames with lens flare.
 
 \subsection{Relative Reference Frame}
 \label{sub:relative-ref-frame}
@@ -1035,7 +1035,7 @@ rotational velocity of the tracking car is logged. With this
 information, the ground-truth velocity of the tracked objects can be
 computed. When the car is driving just forward this is easy. When the car
 is turning, the relative position of the tracked objects is used
-additionally. Because of many objects beeing inside and outside the
+additionally. Because of many objects being inside and outside the
 turning circle of the car, the distribution of velocities of the
 tracked objects is wider than the simple velocity distribution of the
 car. These velocity distributions are plotted in
@@ -1051,7 +1051,7 @@ Figure~\ref{fig:rel-ref-frame-vel} and~\ref{fig:rel-ref-frame-rot}.
     \label{fig:rel-ref-frame-rot}
   }
   \caption{Distribution of the ground-truth velocities of the tracked
-    objects in the local refference frame~\cite{paper}.}
+    objects in the local reference frame~\cite{paper}.}
   \label{fig:rel-ref-frame}
 \end{figure}
 
@@ -1095,7 +1095,7 @@ dynamic improvement steps.
 
 Furthermore, we analyze the performance of ICP in different
 variants. These variants differ in the initialization of ICP and
-wheather they are used as a measurement model in for Kalman
+whether they are used as a measurement model in for Kalman
 filter. The basic point-to-point ICP algorithm is described
 in~\cite{icp-basic} and uses the centroid of the point clouds to align
 as initialization. The algorithm was run with up to $100$ incremental
@@ -1111,7 +1111,7 @@ alignment as, for example, show in Figure~\ref{fig:icp} significantly
 impacts the tracking error. A Kalman filter with its motion model
 can refine the result of many more previous alignments into one
 Gaussian distribution and can compensate wrong alignments because the
-ceartainty of a measurement can be considered as variance when feeding
+certainty of a measurement can be considered as variance when feeding
 the measurement into the Kalman filter. 
 
 By combining the Kalman filter and ICP into one method, the drawbacks
@@ -1127,7 +1127,7 @@ described before.
 The performances of the ICP variants with a Kalman filter as motion
 model is shown in Figure~\ref{fig:rms-runtime}. The variant with
 centroid initialization performs $11.7\%$ better than the simple
-Kalman filter and thus much better than the basic ICP algorithim
+Kalman filter and thus much better than the basic ICP algorithm
 without a motion model. If the initial alignment is computed by a
 first Kalman filter, we achieve the best performance of all baseline
 variants with an RMS error of $0.63\mathrm{~m/s}$. The method
@@ -1136,7 +1136,7 @@ error than all baseline methods. It is more robust than ICP because it
 does not depend on a good initialization what is due to the global
 search of the annealed dynamic histogram. At the same time, the method
 has no drawback in the computational time. At each runtime, the result
-of the tracker outperformes the accuracy of ICP with the same
+of the tracker outperforms the accuracy of ICP with the same
 runtime. This is due to the dynamic resolution improvement which also
 allows getting a result much earlier before ICP has finished its first
 iteration. However, this early results have a much higher RMS
@@ -1160,7 +1160,7 @@ point cloud in the previous frame was evaluated. The version that
 aligns the smaller set to the larger one achieves a $10\%$ lower RMS
 error than the other version. This emphasizes the importance of using
 this improvement.
-The version of the method that usues all these improvements performes
+The version of the method that uses all these improvements performs
 with an RMS error of $0.43\mathrm{~m/s}$ better than all other
 combination of used improvements.
 
@@ -1168,14 +1168,14 @@ combination of used improvements.
   \center
   \includegraphics[width=.5\linewidth]{adh-dense-time}
   \caption{Comparison of runtime and accuracy for the annealed dynamic
-    histogram and a densly sampled histogram~\cite{paper}.}
+    histogram and a densely sampled histogram~\cite{paper}.}
   \label{fig:adh-vs-dense}
 \end{figure}
 
 Because the annealed dynamic histogram is also a new approach, it is
 also evaluated here. Figure~\ref{fig:adh-vs-dense} shows the runtime
 and accuracy of the annealed dynamic histogram compared to a ordinary
-histogram with a densly sampled state space. The densly sampled
+histogram with a densely sampled state space. The densely sampled
 histogram is about $138$ times slower than the annealed dynamic
 histogram for the approximately same accuracy. Furthermore, also the
 different strategies for cell expansion are evaluated. On the one
@@ -1189,11 +1189,11 @@ higher at the same runtime compared to the other strategy.
 
 \subsection{Model Crispness}
 \label{sub:model-crispness}
-The prevoius approach to generate test data by tracking static
+The previous approach to generate test data by tracking static
 objects in a local reference frame already provided many insights into
 the performance of the tracker. However, in this approach only
 detected cars were considered. To evaluate how the tracker performs
-on the variaty of objects present in real traffic, another approach is
+on the variety of objects present in real traffic, another approach is
 necessary. With the tracking alignment which is computed frame for
 frame, the point clouds can be joint to build a model of the tracked
 object. How single point clouds of the objects and the final result
@@ -1211,13 +1211,13 @@ These models are build from the recorded sensor data of normal trips
 of the car through real traffic. Therefore, it allows measuring the
 performance in the real world. Two test datasets were used that were
 recorded around noon and with about a half year in between. Thus, in
-addition to the approach from the previous section, different seassons
+addition to the approach from the previous section, different seasons
 and times of day were evaluated. The two test sets provide a total
 amount of $135$ pedestrians, $79$ bicycles, and $63$ moving
-cars. Therefore, the data contains a variaty of of different objects.
+cars. Therefore, the data contains a variety of of different objects.
 
 To measure the accuracy of the tracker, a metric called crispness
-score is introduced~\cite{crispness}.\textcolor{red}{add reference.}
+score is introduced~\cite{crispness}.
 This metric measures how accurate the model was build by analyzing
 how noisy the model is. Good tracking results in better frame to frame
 alignments and thus in more clear
@@ -1249,13 +1249,13 @@ build model is more accurate.
 
 Table~\ref{tab:crisp} shows the crispness scores for the annealed
 dynamic histogram tracker, a simple Kalman filter, and ICP with a
-Kalman filter as motion model. The scores are devided by the tracked
+Kalman filter as motion model. The scores are divided by the tracked
 object classes to show how the object class influences the accuracy.
 \begin{table}
   \center
   \includegraphics[width=.8\linewidth]{crispness-scores}
   \caption{Comparison of the crispness score for different trackers
-    devided by the tracked object class~\cite{paper}.}
+    divided by the tracked object class~\cite{paper}.}
   \label{tab:crisp}
 \end{table}
 For the data in the table, only frames with at least $200$ points are
@@ -1272,8 +1272,8 @@ best in all three object classes. Intuitively, it could be expected
 that the crispness score for cars would have to be better than for
 pedestrians and bicycles because of the static shape. However, this is
 not the case. The authors of the paper do not mention why. A possible
-explenation would be that the tracked cars have a higher velocity
-relative to the tracking car and thus the estimation is less acurate.
+explanation would be that the tracked cars have a higher velocity
+relative to the tracking car and thus the estimation is less accurate.
 The evaluation with the crispness score shows that the proposed
 tracking method performs better than all baseline methods across all
 object classes and with real-world data.
@@ -1285,14 +1285,14 @@ In this report, the tracking method to estimate the position and
 velocity presented in~\cite{paper} was described. Robust tracking is
 necessary in many robotic applications, especially for autonomous
 cars. The proposed method uses clues from the the 3D shape, color, and
-motion of the tracked object. A mesurement model derived from a
+motion of the tracked object. A measurement model derived from a
 Dynamic Bayesian Network is used to compute the probability for a
 position and velocity of the tracked object given the current and
 previous measurement consisting of a point cloud and color information
 for these points.  To find the most likely position and velocity, the
 state space is globally searched with an annealed dynamic
 histogram. The annealed dynamic histogram starts with a coarse
-sampling resolution which is dynamicall improved in the important
+sampling resolution which is dynamically improved in the important
 areas. Because the coarse resolution introduces an error, the
 measurement model considers the resolution and thus is annealed as the
 resolution improves.  The computed alignment is then fed into a Kalman
@@ -1308,7 +1308,7 @@ is due to its search for a local optimum.
 The proposed method performs well on real-world data, different object
 classes, and when there are problems with the color information.
 Evaluation data was created by tracking static objects with a moving car in
-a local reference and by building object models and measureing their
+a local reference and by building object models and measuring their
 crispness score.
 
 The authors of~\cite{paper} did not evaluate the performance of the
@@ -1327,12 +1327,12 @@ larger because of the larger noise.
 The implementation of the proposed method is Open Source and can be
 found on the project page of the presented work:
 
-{\centering{\mathrm{\url{http://stanford.edu/~davheld/DavidHeld_files/RSS2014_Poster.pdf}}}\\}
+{\centering{\url{http://stanford.edu/~davheld/DavidHeld_files/RSS2014_Poster.pdf}}\\}
 
 The implementation is easy to setup, configure, and include into other
 C++ projects.
 
-The tracking accuracy probided by annealed dynamic histograms and the
+The tracking accuracy provided by annealed dynamic histograms and the
 combination of 3D shape, color, and motion is an important step
 towards robust tracking and thus safe and autonomous cars.
 
