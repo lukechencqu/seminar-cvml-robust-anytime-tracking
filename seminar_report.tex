@@ -940,17 +940,18 @@ state with position and velocity because the position $x_{t,p}$ in the
 state is relative to the objects position in the previous frame and
 mainly used for estimating the velocity with the motion model. The
 absolute position of the tracked object can easily be computed as the
-centroid of the point cloud and thus has not to be evaluated here. The
+centroid of the point cloud and thus has not to be evaluated here. In
+this evaluation, the RMS error is averaged over all tracked objects. The
 RMS error is widely used and has the property to give large errors a
 higher influence than many small ones have. A problem with the RMS
-error, which was not mentioned by the authors of the paper, is that it
-is independent of the distance to the object. Intuitively, the
-tracking error for distant objects whould be higher than for close
+error is that it significantly depends on the distance to the tracked 
+object. Intuitively, the
+tracking error for distant objects is higher than for close
 objects because the point clouds have less measurement
-points. However, the authors might have considered it in the
-evaluation because the distance to the tracked object is incorporated
-in the variance of the measurement model Gaussian and therefore also
-in the variance of the returned tracking estimate.
+points. Because the RMS error is averaged over all tracked objects,
+distant objects are have a higher influence on the error than near
+ones. This could be changed by using the RMS error in relation to the
+distance, but was not done by the authors of~\cite{paper}.
 
 To properly evaluate the performance of the tracker, a large dataset
 with many different objects to track is needed, because in practise an
@@ -1108,16 +1109,62 @@ described before.
 The performances of the ICP variants with a Kalman filter as motion
 model is shown in Figure~\ref{fig:rms-runtime}. The variant with
 centroid initialization performs $11.7\%$ better than the simple
-Kalman filter thus much better than the basic ICP algorithim without a
-motion model. If the initial alignment is computed by a first Kalman
-filter, we achieve the best performance of all baseline variants with
-an RMS error of $0.63\mathrm{~m/s}$. The method presented in this
-report achieves with $0.43\mathrm{~m/s}$ a lower RMS error than all
-baseline methods. It is more robust than ICP because it does not
-depend on a good initialization what is due to the global search of
-the annealed dynamic histogram.
-\textcolor{red}{at the same time faster, only kalman faster but...,
-  accuracy-distance, color improvement}
+Kalman filter and thus much better than the basic ICP algorithim
+without a motion model. If the initial alignment is computed by a
+first Kalman filter, we achieve the best performance of all baseline
+variants with an RMS error of $0.63\mathrm{~m/s}$. The method
+presented in this report achieves with $0.43\mathrm{~m/s}$ a lower RMS
+error than all baseline methods. It is more robust than ICP because it
+does not depend on a good initialization what is due to the global
+search of the annealed dynamic histogram. At the same time, the method
+has no drawback in the computational time. At each runtime, the result
+of the tracker outperformes the accuracy of ICP with the same
+runtime. This is due to the dynamic resolution improvement which also
+allows getting a result much earlier before ICP has finished its first
+iteration. However, this early results have a much higher RMS
+error. The only baseline method that has a better accuracy at a
+specific runtime is the pure Kalman filter which is outperformed at a
+larger runtime. As described before the RMS error depends on the
+distance to the tracked object. For near objects with a distance
+smaller than $5$m, the RMS error is about $0.15\mathrm{~m/s}$. For
+objects with a distance greater than $70$m, the method yields an RMS
+error of $1.8\mathrm{~m/s}$. When comparing the method with and
+without usage of the color in the measurement model, the RMS error is
+decreased by $10.4\%$ although the test dataset has problems with lens
+flare and bad lightening which was for example caused by heavy
+shadows. In Figure~\ref{fig:rms-runtime} only the version with color
+estimation is plotted. It can be expected that the advantage from
+using color in the measurement model is even larger under better
+conditions.  Also the improvement in the accuracy from aligning the
+smaller point cloud to the larger one instead of aligning the current
+point cloud in the previous frame was evaluated. The version that
+aligns the smaller set to the larger one achieves a $10\%$ lower RMS
+error than the other version. This emphasizes the importance of using
+this improvement.
+The version of the method that usues all these improvements performes
+with an RMS error of $0.43\mathrm{~m/s}$ better than all other
+combination of used improvements.
+
+\begin{figure}
+  \center
+  \includegraphics[width=.5\linewidth]{adh-dense-time}
+  \caption{Comparison of runtime and accuracy for the annealed dynamic
+    histogram and a densly sampled histogram~\cite{paper}.}
+  \label{fig:adh-vs-dense}
+\end{figure}
+
+Because the annealed dynamic histogram is also a new approach, it is
+also evaluated here. Figure~\ref{fig:adh-vs-dense} shows the runtime
+and accuracy of the annealed dynamic histogram compared to a ordinary
+histogram with a densly sampled state space. The densly sampled
+histogram is about $138$ times slower than the annealed dynamic
+histogram for the approximately same accuracy. Furthermore, also the
+different strategies for cell expansion are evaluated. On the one
+hand, only the cell with the highest probability can be expanded in
+each iteration and on the other hand all cells that exceed the
+probability threshold $p_{min}$ can be expanded in one step. Expanding
+all cells that exceed the threshold has RMS error that is $46.4\%$
+higher at the same runtime compared to the other strategy.
 
 
 
