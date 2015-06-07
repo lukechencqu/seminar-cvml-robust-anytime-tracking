@@ -66,7 +66,25 @@
 \include{titlepage}
 
 \begin{abstract}
-  \textcolor{red}{Abstract}
+  Object tracking is a critically important task in many robotic
+  applications, especially for autonomous cars. Although there are
+  already various approaches, low accuracy and poor robustnes because
+  of challenges, such as occlusion, viewpoint changes, and various
+  object classes, still are a problem. The proposed method uses a
+  probabilistic approach to combine cues from the 3D shape, color, and
+  motion of the tracked objects. A so called annealed dynamic
+  histogram is used to globaly search the state space for the most
+  likely position and velocity of the tracked object. This histogram
+  is faster than ordinary ones because it is initialized with a coarse
+  resolution and dynamically improve the resolution in the important
+  areas. To counter the additionally error of the coarse resolution,
+  the measurement model takes the resolution into account and anneals
+  the model as the resolution is improved. Evaluation of the method
+  shows that is outperforms all common baseline methods which are a
+  Kalman filter and ICP with various improvements. The method achieves
+  with similar runtime an at least $25\%$ lower RMS tracking
+  error. Furthermore, the tracker is robost against occlusion,
+  viewpoint and lighting changes, and various object classes.
 \end{abstract}
 
 \tableofcontents
