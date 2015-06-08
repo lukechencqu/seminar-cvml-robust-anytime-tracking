@@ -846,7 +846,7 @@ probabilities has to match the parent-cells probability $\sum_{j=1}^k p_j=P_i$. 
 distribution of probabilities among the sub-cells is called $A$ and is
 a better approximation of the true posterior than $B$.
 
-This kind of information gain can be computed with the
+The information gain can be computed with the
 Kullback–Leibler divergence \textit{(KL-divergence)}~\cite{kl-divergence}. The
 KL-divergence of $B$ from $A$ measures the information loss when $A$
 is approximated with $B$. In our case, we can compute the
@@ -915,8 +915,11 @@ would be used in an autonomous car, also the complete probability
 distribution as a density tree could be returned~\cite{density-tree}.
 Using the mean of the distribution has the advantage that this would
 minimize the \textit{Root-Mean-Square error (RMS error)} as shown
-in~\cite{paper}.
-%\textcolor{red}{estimating rotation}
+in~\cite{paper}. The method only determines the position and velocity
+of the tracked object. If an application also requires the rotation,
+this can easily be computed by using the computed frame-to-frame
+alignment and then performing coordinate descent while searching only
+over the rotation.
 
 % +++++++++++++++++++++++++
 \section{Evaluation}
@@ -1187,7 +1190,19 @@ only the cell with the highest probability leads to an RMS error that
 is $46.3\%$ higher than using the other strategy. Thus, it is clear that
 all cells should be expanded if they exceed the threshold.
 
-%\textcolor{red}{Error analysis 21ff}
+The authors of~\cite{paper} provide the source code and test datasets
+for the method. We ran the program with the test data to check if the
+results are reproducible. The RMS errors match the results in
+Figure~\ref{fig:rms-runtime}. The runtimes were a bit larger because
+the program ran on a slower computer. The relation of
+runtimes between the different approaches matches the given
+relations. However, the runtime of the proposed method with using
+color is about $18$ times larger than the runtime without using
+color. In the provided program, it is mentioned that this is as
+expected. In the evaluation of~\cite{paper}, this is not clearly
+stated or explained. Only the improvement in the RMS error is
+explained. However, this is not a problem because only the slower version
+with color consideration is compared in Figure~\ref{fig:rms-runtime}.
 
 \subsection{Model Crispness}
 \label{sub:model-crispness}
@@ -1308,7 +1323,7 @@ significantly worse than the proposed method, even with the improved
 variants which add a motion model and different initializations. This
 is due to its search for a local optimum.
 The proposed method performs well on real-world data, different object
-classes, and even problemetic color information.
+classes, and even problematic color information.
 Evaluation data was created by tracking static objects with a moving car in
 a local reference and by building object models and measuring their
 crispness score.
@@ -1329,7 +1344,7 @@ larger because of the larger noise.
 The implementation of the proposed method is Open Source and can be
 found on the project page of the presented work:
 
-{\centering{\url{http://stanford.edu/~davheld/DavidHeld_files/RSS2014_Poster.pdf}}\\}
+{\centering{\url{http://stanford.edu/~davheld/anytime_tracking.html}}\\}
 
 The implementation is easy to setup, configure, and include into other
 C++ projects.
