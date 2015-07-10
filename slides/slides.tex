@@ -34,6 +34,91 @@
 \end{frame}
 
 \section{Motivation}
+
+\begin{frame}
+  \frametitle{Tracking for Autonomous Cars}
+  
+  \begin{columns}
+  \begin{column}{0.6\textwidth}
+  \begin{description}[]
+  \item[Chances] \hfill \\
+  \begin{itemize}
+  \item Free use of driving time
+  \item Help disabled persons
+  \item Computers do not get\\tired or drunk
+  \item Faster reaction time
+  \item[$\Rightarrow$] Safe 26k lifes per year in EU
+  \end{itemize}
+  \end{description}
+  \end{column}
+  \begin{column}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{images/auto.jpg}
+  \end{column}
+  \end{columns}
+  \pause
+  \bigskip
+  \begin{columns}
+  \begin{column}{0.6\textwidth}
+  \includegraphics[height=0.35\textheight]{images/highway}
+  \hspace{0.01cm}
+  \includegraphics[height=0.35\textheight]{images/cycle}
+  \hspace{0.01cm}
+  \includegraphics[height=0.35\textheight]{images/pedestrian}
+  \end{column}
+  \begin{column}{0.5\textwidth}
+  \begin{description}[]
+  \item[Challenges] \hfill \\
+  \begin{itemize}
+  \item Precise tracking
+  \item Robustness
+  \item Occlusion
+  \item Real time
+  \end{itemize}
+  \end{description}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Tracking for Autonomous Cars}
+  \begin{description}[]
+  \item[Subtasks of Tracking] \hfill \\
+  \begin{itemize}
+  \item Segment sensor data into objects
+  \item Associate objects in successive frames
+  \item Position and velocity estimation
+  \item Object and trajectory classification
+  \end{itemize}
+  \end{description}
+  
+  \begin{block}{Topic of this presentation}
+    Position and velocity estimation
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Given Sensor Data}
+
+  \begin{columns}
+  \begin{column}{0.6\textwidth}
+  \begin{description}[]
+  \item[Sensor] \hfill \\
+  \begin{itemize}
+  \item Dense 3D laser sensor
+  \item Generates point cloud
+  \item Additional panorama image
+  \item bla
+  \end{itemize}
+  \end{description}
+  \end{column}
+  \begin{column}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{../img/lidar}\\
+\bigskip
+  \includegraphics[width=\textwidth]{../img/lidar-data}
+  \end{column}
+  \end{columns}
+\end{frame}
+
 \begin{frame}
   \frametitle{Motivation}
   \begin{itemize}
