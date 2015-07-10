@@ -1,0 +1,122 @@
+\input{header}
+
+\newcommand{\backupbegin}{
+   \newcounter{finalframe}
+   \setcounter{finalframe}{\value{framenumber}}
+}
+\newcommand{\backupend}{
+   \setcounter{framenumber}{\value{finalframe}}
+}
+
+% define vector/matrix helpers
+\newcommand*\colvec[3][]{
+    \begin{pmatrix}\ifx\relax#1\relax\else#1\\\fi#2\\#3\end{pmatrix}
+}
+\newcommand{\mattwo}[4]{\begin{pmatrix} #1 & #2 \\ #3 & #4\end{pmatrix}}
+
+\title[Combining 3D Shape, Color, and Motion for Robust Anytime Tracking]{Combining 3D Shape, Color, and Motion\\ for Robust Anytime Tracking\\ \small{Paper by Held, Levinson, Thrun, and Savarese}}
+\author[Zwilling]{%
+  Frederik Zwilling\\
+  \bigskip
+  {\scriptsize Seminar Current Topics in Computer Vision and Machine Learning\\ RWTH Aachen University}
+}
+
+\date[\today @ Seminar CVML]{\today -- Seminar Current Topics in Computer Vision and Machine Learning}
+
+\begin{document}
+
+\frame[plain]{\titlepage}
+\addtocounter{framenumber}{-1}
+
+\begin{frame}
+  \frametitle{Agenda}
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{Motivation}
+\begin{frame}
+  \frametitle{Motivation}
+  \begin{itemize}
+  \item short description
+  \item tracking problem (pipeline, part this approach is about)
+  \item autonomous cars (deaths)
+  \item sensor data visualization
+  \item idea to combine shape, color, motion
+  \end{itemize}
+\end{frame}
+
+\section{Baseline Methods}
+\begin{frame}
+  \frametitle{Baseline Methods}
+  \begin{itemize}
+  \item Kalman filter (centroid,image,occlusionproblem,motionmodel)
+  \item ICP (images of iterative steps, local optima problem)
+  \item Disadvantages
+  \end{itemize}
+\end{frame}
+
+\section{Probabilistic Model}
+\begin{frame}
+  \frametitle{Probabilistic Model}
+  \begin{itemize}
+  \item Dynamic Bayesian Network
+  \item Surface points - Measurement points
+  \item Derivation of measurement model
+  \item Color model
+  \item Motion model
+  \end{itemize}
+\end{frame}
+
+\section{Searching the State Space}
+\begin{frame}
+  \frametitle{Searching the State Space}
+  \begin{itemize}
+  \item Dynamic histogram
+  \item Refinement step
+  \item Annealing
+  \end{itemize}
+\end{frame}
+
+\section{Evaluation}
+\begin{frame}
+  \frametitle{Evaluation}
+  \begin{enumerate}
+  \item Videos from website
+  \item Relative reference frame approach
+  \item Comparison with Kalman and ICP variants
+  \item Comparison ADH - densly sampling
+  \item Model Crispness approach
+  \item Provided Code, experiments
+  \end{enumerate}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}
+  \frametitle{Conclusion}
+  \begin{itemize}
+  \item Catch Phrase
+  \item Main Points
+  \end{itemize}
+\end{frame}
+
+
+
+\backupbegin
+
+\begin{frame}[allowframebreaks]
+  \frametitle{References}
+  \nocite{*}
+  \bibliographystyle{../splncs}
+  \bibliography{references}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Missing stuff}
+  \begin{itemize}
+  \item related work: alternative sensors, grid-based methods
+  \end{itemize}
+\end{frame}
+
+\backupend
+
+\end{document}
