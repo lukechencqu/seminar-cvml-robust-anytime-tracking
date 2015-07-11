@@ -366,8 +366,35 @@
 \begin{frame}
   \frametitle{Probabilistic Model}
   \begin{description}[]
+  \item[Adding Color] \hfill \\
+  \begin{itemize}
+  \item Use available color information of measurement points
+  \item Better alignment despite occlusions
+  \item Embed color matching into measurement model
+  \begin{align}
+p_c(s_{t,i}|s_{t-1},V)
+  = &p(C)p_c(s_{t,i}|s_{t-1},V,C)+ \nonumber\\
+&p(\neg C)p_c(s_{t,i}|s_{t-1},V,\neg C)\nonumber
+  \end{align}
+  \begin{itemize}
+  \item $p(C)$: Color-model applicable
+  \item $p(\neg C)$: Color-model not applicable (lens flare, reflections)
+  \item $p_c(s_{t,i}|s_{t-1},V,C)=\frac{1}{255}$: Color mismatch
+  \item $p_c(s_{t,i}|s_{t-1},V,C)$: Color match
+  \end{itemize}
+
+  \end{itemize}
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Probabilistic Model}
+  \begin{description}[]
   \item[Motion Model] \hfill \\
   \begin{itemize}
+  \item Take whole measurement history into account
+  \item Robustness against single unprecise alignments
+  \pause
   \item Kalman filter with constant velocity model
   \item Measurement step: update with Gaussian distribution\\
         $\mu_t=\sum_i p(x_{t,i}|z_1,...,z_t)x_{t,i}$\\
@@ -377,16 +404,6 @@
   \end{description}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Probabilistic Model}
-  \begin{itemize}
-  \item Dynamic Bayesian Network
-  \item Surface points - Measurement points
-  \item Derivation of measurement model
-  \item Color model
-  \item Motion model
-  \end{itemize}
-\end{frame}
 
 \section{Searching the State Space}
 \begin{frame}
