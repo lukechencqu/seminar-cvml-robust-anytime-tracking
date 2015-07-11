@@ -14,7 +14,8 @@
 }
 \newcommand{\mattwo}[4]{\begin{pmatrix} #1 & #2 \\ #3 & #4\end{pmatrix}}
 
-\title[Combining 3D Shape, Color, and Motion for Robust Anytime Tracking]{Combining 3D Shape, Color, and Motion\\ for Robust Anytime Tracking\\ \small{Paper by Held, Levinson, Thrun, and Savarese}}
+
+\title[Combining 3D Shape, Color, and Motion for Robust Anytime Tracking]{Combining 3D Shape, Color, and Motion\\ for Robust Anytime Tracking\\ \small{Paper by Held, Levinson, Thrun, and Savarese~\cite{paper}}}
 \author[Zwilling]{%
   Frederik Zwilling\\
   \bigskip
@@ -128,27 +129,118 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Motivation}
+  \frametitle{Teaser Paper Ideas}
+  \begin{description}[]
+  \item[How to find a precise alignment?] \hfill \\
   \begin{itemize}
-  \item short description
-  \item tracking problem (pipeline, part this approach is about)
-  \item autonomous cars (deaths)
-  \item sensor data visualization
-  \item idea to combine shape, color, motion
+  \item Utilize whole object shape
+  \item Additional cues from color
+  \item Use motion model
   \end{itemize}
+  \pause
+  \item[How to search the state space fast?] \hfill \\
+  \begin{itemize}
+  \item Histogram with coarse initial resolution
+  \item Refine resolution important areas
+  \item Consider resolution in the probabilistic model
+  \end{itemize}
+  \end{description}
 \end{frame}
+
 
 \section{Baseline Methods}
 \begin{frame}
   \frametitle{Baseline Methods}
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \only<1>{
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=\textwidth,height=0.25\textwidth]{images/point-clouds}};}
+    \only<2>{
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=\textwidth,height=0.25\textwidth]{images/centroid}};}
+    \only<3>{
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=\textwidth,height=0.25\textwidth]{images/centroid-alignment}};}
+    \only<4->{
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=\textwidth,height=0.25\textwidth]{images/kalman-error}};}
+    \node (descx) at (10.6,-0.25)
+    {\scriptsize \cite{held-website}};
+    \onslide<1->
+  \end{tikzpicture}
+  
+  \begin{description}[]
+  \item[Kalman Filter] \hfill \\
   \begin{itemize}
-  \item Kalman filter (centroid,image,occlusionproblem,motionmodel)
-  \item ICP (images of iterative steps, local optima problem)
-  \item Disadvantages
+  \onslide<2->{\item Aligns centroids}
+  \onslide<4->{\item Problems with occlusion}
+  \onslide<5->{\item Robustness through motion model}
+  \onslide<6->{\item Very fast}
   \end{itemize}
+  \end{description}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Baseline Methods}
+  
+  \begin{description}[]
+  \item[Iterative Clostest Point (ICP)] \hfill \\
+  \begin{itemize}
+  \item Iterative hill climbing approach
+  \item Minimizes quadratic distance of closest points
+  \item Uses whole point cloud
+  \pause
+  \item Depends on good initialization
+  \item Problem: local optima\\
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \only<2>{
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[height=0.25\textwidth]{images/icp-init}};}
+    \only<3>{
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[height=0.25\textwidth]{images/icp-1}};}
+    \only<4>{
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[height=0.25\textwidth]{images/icp-2}};}
+    \only<5->{
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[height=0.25\textwidth]{images/icp-3}};}
+    \node (descx) at (5.7,-0.2)
+    {\scriptsize \cite{held-website}};
+    \onslide<1->
+  \end{tikzpicture}
+  \pause
+  \pause
+  \pause
+  \item No motion model
+  \end{itemize}
+  \end{description}
+\end{frame}
+
+
 \section{Probabilistic Model}
+
+\begin{frame}
+  \frametitle{Probabilistic Model}      
+  
+\end{frame}
+
 \begin{frame}
   \frametitle{Probabilistic Model}
   \begin{itemize}
@@ -198,8 +290,8 @@
 
 \begin{frame}[allowframebreaks]
   \frametitle{References}
-  \nocite{*}
-  \bibliographystyle{../splncs}
+  %% \nocite{*}
+  \bibliographystyle{splncs}
   \bibliography{references}
 \end{frame}
 
