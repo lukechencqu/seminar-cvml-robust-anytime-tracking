@@ -173,7 +173,7 @@
     {
     \includegraphics[width=\textwidth,height=0.25\textwidth]{images/kalman-error}};}
     \node (descx) at (10.6,-0.25)
-    {\scriptsize \cite{held-website}};
+    {\tiny \cite{held-website}};
     \onslide<1->
   \end{tikzpicture}
   
@@ -201,7 +201,7 @@
   \item Depends on good initialization
   \item Problem: local optima\\
   \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
-    \only<2>{
+    \only<1-2>{
     \node (program) [outer sep=0,inner sep=0,anchor=south west]
     at (0,0)
     {
@@ -222,7 +222,7 @@
     {
     \includegraphics[height=0.25\textwidth]{images/icp-3}};}
     \node (descx) at (5.7,-0.2)
-    {\scriptsize \cite{held-website}};
+    {\tiny \cite{held-website}};
     \onslide<1->
   \end{tikzpicture}
   \pause
@@ -238,7 +238,143 @@
 
 \begin{frame}
   \frametitle{Probabilistic Model}      
-  
+  \center
+  \includegraphics[width=0.8\textwidth]{../img/dbn}
+  {\tiny \cite{paper}}
+  \begin{description}[]
+  \item[Dynamic Bayesian Network] \hfill \\
+  \begin{itemize}
+  \item Relates variables over successive frames
+  \item State $x_t$ (position relative to last frame and velocity)\\
+        Surface points $s_t=\{s_{t,1},...,s_{t,n}\}$\\
+        Measured point cloud $z_t=\{z_{t,1},...,z_{t,n}\}$
+  \item Rotation not considered
+  \end{itemize}
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Probabilistic Model}
+  \begin{columns}
+  \begin{column}{0.62\textwidth}
+  \begin{description}[]
+  \item[Surface points] \hfill \\
+  \begin{itemize}
+  \item Sampled from the visible surface
+  \item Indirectly observable
+  \item Visible surface varies due to occlusion and viewpoint changes
+  \item $p(s_{t,i}|s_{t-1})=p(V)*p(s_{t,i}|s_{t-1},V)+$\\$p(\neg V)*p(s_{t,i}|s_{t-1},\neg V)$
+  \item[$\Rightarrow$] $p(s_{t}|s_{t-1}) = \eta(\mathcal{N}(s_t;s_{t-1,i},\Sigma_r) + k)$
+  \end{itemize}
+  \end{description}
+  \end{column}
+  \begin{column}{0.4\textwidth}
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=\textwidth]{../img/surface-measurement}};
+    \node (descx) at (4.3,-0.2)
+    {\tiny \cite{paper}};
+  \end{tikzpicture}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Probabilistic Model}
+  \begin{columns}
+  \begin{column}{0.62\textwidth}
+  \begin{description}[]
+  \item[Measurement points] \hfill \\
+  \begin{itemize}
+  \item Depending on surface points
+  \item Gaussian sensor noise $\Sigma_e$
+  \item $z_{t,i} \sim \mathcal{N}(s_{t,i},\Sigma_e) + x_{t,p}$\\
+        $z_{t-1,i} \sim \mathcal{N}(s_{t-1,i},\Sigma_e)$
+  \end{itemize}
+  \end{description}
+  \end{column}
+  \begin{column}{0.4\textwidth}
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=\textwidth]{../img/surface-measurement}};
+    \node (descx) at (4.3,-0.2)
+    {\tiny \cite{paper}};
+  \end{tikzpicture}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Probabilistic Model}
+
+  \begin{columns}
+  \begin{column}{0.4\textwidth}
+  \begin{description}[]
+  \item[Measurement Model] \hfill \\
+  \end{description}
+  \end{column}
+  \begin{column}{0.6\textwidth}
+  \vspace{1cm}
+  \includegraphics[width=0.9\textwidth]{../img/dbn}
+  \end{column}
+  \end{columns}
+  \vspace{-1cm}
+  \begin{align}     
+    p(z_t|x_t,z_1,...,z_{t-1}) \onslide<2-> & \approx p(z_t|x_t,z_{t-1}) \nonumber\\
+    \onslide<3-> &= \int \int p(z_t,s_t,s_{t-1}|x_t,z_{t-1}) \mathrm d s_t \mathrm d s_{t-1} \nonumber\\
+    \onslide<4-> &= \underbrace{\int p(z_t|s_t,x_t) \underbrace{\int p(s_t|s_{t-1})\eta p(z_{t-1}|s_{t-1}) \mathrm d s_t}_{\text{convolution}} \mathrm d s_{t-1}}_{\text{convolution}} \nonumber\\
+    \onslide<5-> &= \eta(\mathcal{N}(z_t;z_{t-1}+x_{t,p},\Sigma_r+2\Sigma_e)+k) \nonumber
+    \onslide<1->
+  \end{align}
+\end{frame}
+
+\newcommand{\unaryminus}{\scalebox{0.75}[1.0]{\( - \)}}
+
+\begin{frame}
+  \frametitle{Probabilistic Model}
+  \begin{description}[]
+  \item[Measurement Model Computation] \hfill \\
+  \begin{itemize}
+  \item $ccp(z_{t,i})$: closest corresponcence point in $z_{t-1}+x_{t,p}$
+  \pause
+  \item Covariance matrix $\Sigma = 2\Sigma_e+\Sigma_r$
+  %say: sigma r funciton of distance
+  \pause
+  \item Normalization constant $\eta$
+  \item Smoothing factor $k$
+  %say: found by training
+  \onslide<1->
+  \end{itemize}
+  \end{description}     
+  \begin{block}{Measurement Probability}
+  \small
+  $$
+  p(z_t|x_t,z_{t-1}) =
+  \eta\prod\limits_{z_{t,i}\in z_t}
+  \mathrm{exp}\left(\unaryminus\frac{1}{2}(z_{t,i}\unaryminus\mathrm{ccp}(z_{t,i}))^T\Sigma^{\unaryminus 1}(z_{t,i}\unaryminus\mathrm{ccp}(z_{t,i}))\right)+k
+  \nonumber
+  $$
+  \end{block}
+  %say: exchange z_t z_t-1 smaller set into larger one
+  %TODO: picture
+\end{frame}
+
+\begin{frame}
+  \frametitle{Probabilistic Model}
+  \begin{description}[]
+  \item[Motion Model] \hfill \\
+  \begin{itemize}
+  \item Kalman filter with constant velocity model
+  \item Measurement step: update with Gaussian distribution\\
+        $\mu_t=\sum_i p(x_{t,i}|z_1,...,z_t)x_{t,i}$\\
+        $\Sigma_t=\sum_i p(x_{t,i}|z_1,...,z_t) (x_{t,i}-\mu_t)(x_{t,i}-\mu_t)^T$
+  \item Update step: apply velocity to position
+  \end{itemize}
+  \end{description}
 \end{frame}
 
 \begin{frame}
@@ -265,14 +401,14 @@
 \section{Evaluation}
 \begin{frame}
   \frametitle{Evaluation}
-  \begin{enumerate}
+  \begin{itemize}
   \item Videos from website
   \item Relative reference frame approach
   \item Comparison with Kalman and ICP variants
   \item Comparison ADH - densly sampling
   \item Model Crispness approach
   \item Provided Code, experiments
-  \end{enumerate}
+  \end{itemize}
 \end{frame}
 
 \section{Conclusion}
