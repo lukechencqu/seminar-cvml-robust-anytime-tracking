@@ -382,7 +382,6 @@ p_c(s_{t,i}|s_{t-1},V)
   \item $p_c(s_{t,i}|s_{t-1},V,C)=\frac{1}{255}$: Color mismatch
   \item $p_c(s_{t,i}|s_{t-1},V,C)$: Color match
   \end{itemize}
-
   \end{itemize}
   \end{description}
 \end{frame}
@@ -406,6 +405,55 @@ p_c(s_{t,i}|s_{t-1},V)
 
 
 \section{Searching the State Space}
+\begin{frame}
+  \frametitle{Searching the State Space}
+  \begin{description}[]
+  \item[Search the State Space] \hfill \\
+  \pause
+  \begin{itemize}
+  \item For most likely state
+  \item Globally, without getting stuck in local optima
+  \item Allow multiple hypotheses
+  \pause
+  \item[$\Rightarrow$] Use histogram
+  \pause
+  \item[$\Rightarrow$] Too slow for neseccary resolution
+  \end{itemize}
+  \end{description}
+  \onslide<3->
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=\textwidth]{images/histogram}};
+    \node (descx) at (11,-0.2)
+    {\tiny \cite{held-website}};
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Searching the State Space}
+  \begin{description}[]
+  \item[In Real Time] \hfill \\
+  \begin{itemize}
+  \item Densly sample only areas with high probability
+  \item Initial coarse resolution
+  \item Stop at anytime during refinement
+  \pause
+  \item[$\Rightarrow$] Use dynamic histogram
+  \end{itemize}
+  \end{description}
+  \onslide<1->
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=\textwidth]{images/adh}};
+    \node (descx) at (11,-0.2)
+    {\tiny \cite{paper}};
+  \end{tikzpicture}
+\end{frame}
+
 \begin{frame}
   \frametitle{Searching the State Space}
   \begin{itemize}
