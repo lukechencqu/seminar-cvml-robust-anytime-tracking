@@ -456,11 +456,47 @@ p_c(s_{t,i}|s_{t-1},V)
 
 \begin{frame}
   \frametitle{Searching the State Space}
+  \begin{description}[]
+  \item[Derivation Step] \hfill \\
   \begin{itemize}
-  \item Dynamic histogram
-  \item Refinement step
-  \item Annealing
+  \item Recursively expend cells\\
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=0.5\textwidth]{images/adh}};
+    \node (descx) at (5.5,0)
+    {\tiny \cite{paper}};
+  \end{tikzpicture}
+  \pause
+  \item Maximize information gain / Minimize KL-divergence\\
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=0.4\textwidth]{../img/devision-criteria}};
+    \node (descx) at (4.3,0)
+    {\tiny \cite{paper}};
+  \end{tikzpicture}
+  \pause
+  \item KL-divergence: information loss if A approximated by B
+  $$D_{KL}(A||B)=\sum_{j=1}^k p_j \mathrm{ln}\left(\frac{p_j}{P_i/k}\right)$$
   \end{itemize}
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Searching the State Space}
+  \begin{description}[]
+  \item[Annealing Dynamic Histogram (ADH)] \hfill \\
+  \begin{itemize}
+  \item No good alignment with coarse resolution
+  \item Sampling resolution another error source
+  \item[$\Rightarrow$] Consider sampling resolution in measurement model
+  \item $\Sigma = 2\Sigma_e+\Sigma_r+\Sigma_g$
+  \item $\Sigma_g$ proportional to sampling resolution
+  \end{itemize}
+  \end{description}
 \end{frame}
 
 \section{Evaluation}
