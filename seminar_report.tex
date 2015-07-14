@@ -70,7 +70,7 @@
   applications, especially for autonomous cars. Although there are
   already various approaches, low accuracy and poor robustness because
   of challenges, such as occlusion, viewpoint changes, and various
-  object classes, still are a problem. The proposed method uses a
+  object classes, are still a problem. The proposed method uses a
   probabilistic approach to combine cues from the 3D shape, color, and
   motion of the tracked objects. A so called annealed dynamic
   histogram is used to globally search the state space for the most
@@ -82,8 +82,8 @@
   the model as the resolution is improved. Evaluation of the method
   shows that is outperforms all common baseline methods which are the
   Kalman filter and ICP with various improvements. The method achieves
-  with similar runtime an at least $25\%$ lower RMS tracking
-  error. Furthermore, the tracker is robust against occlusion,
+  with similar runtime $25\%$ lower RMS tracking
+  error than the baseline methods. Furthermore, the tracker is robust against occlusions,
   viewpoint and lighting changes, and variation in the object classes.
 \end{abstract}
 
@@ -212,12 +212,12 @@ consider color and motion in the measurement model because the additional
 information is influenced less by occlusion and viewpoint changes.
 
 To find the state, which is composed of position and velocity of an
-object, we use a histogram that maps the each histogram-chunk in the
+object, a histogram is used that maps the each histogram-chunk in the
 state space to the probability that this chunk causes the measurement
 according to our model. This allows a global search in the state space
-with multiple hypothesis. A standard histogram with adequate
-resolution would have to many chunks and thus would be to slow for
-real time computation. Therefore, we use a dynamic histogram that
+with multiple hypotheses. A standard histogram with adequate
+resolution would have too many chunks and thus would be to slow for
+real time computation. Therefore, the authors use a dynamic histogram that
 starts with a low resolution and an approximated posterior
 distribution. Then it dynamically increases the resolution in areas
 with high probability to cause the measurement. This allows to achieve
@@ -321,8 +321,9 @@ sensors used for tracking, they are inadequate
 for many applications because of their high price. A closely related
 alternative to laser range sensors is the usage of stereo
 cameras. They provide the same kind of data (point clouds and images)
-and are cheap. However, they have more noise then a laser sensor and
-can therefore cause larger errors in the tracing results. An example
+and are cheap. However, they provide more noisy and less accurate data
+then laser sensors and
+can therefore cause larger errors in the tracking results. An example
 for the use of stereo data for tracking
 is~\cite{leibe-tracking-before-detection}. It uses ICP to track
 pedestrians and unknown objects. Object tracking with a single camera
@@ -403,7 +404,7 @@ observed measurement seen in the last frames, we use a Bayesian
 Network because it allows us to easily combine 3D shape, color, and
 motion cues~\cite{paper}. After encoding the influences of the states,
 consisting of position and velocity, the surface of the object to
-track and the observed measurement, we can derive the wanted
+track and the observed measurement, we can derive the
 probability of the measurement given the state by applying well known
 probability rules in Bayesian Networks~\cite{ai-modern}. Furthermore,
 we use a Dynamic Bayesian Network to relate variables over successive
@@ -506,7 +507,7 @@ p(s_{t,i}|s_{t-1})=&p(V)*p(s_{t,i}|s_{t-1},V) + \nonumber\\
 \end{align}
 $p(s_{t,i}|s_{t-1},\neg V)$ stands for the probability that $s_{t,i}$
 is generated from a part of the surface that was not visible in the
-previous frame. Under the assumption that every non visible point is
+previous frame. Under the assumption that every non-visible point is
 occluded, we can rewrite the term with constants $k_1$ and $k_2$:
 \begin{equation}
 p(s_{t,i}|s_{t-1},\neg V) = k_1 (k_2 - p(s_{t,i}|s_{t-1},V))
@@ -575,7 +576,7 @@ term in the integral further:
 p(z_t,s_t,s_{t-1}|x_t,z_{t-1})
 &=\eta\underbrace{p(z_t|s_t,x_t)}_{(\ref{eq:gaus-zt})}\underbrace{p(s_t|s_{t-1})}_{(\ref{eq:gaus-st})}\underbrace{p(z_{t-1}|s_{t-1})}_{(\ref{eq:ind-centroid})}
 \end{align}
-For this term, we have modeled all probabilities as Gaussians as
+For this term, the authors have modeled all probabilities as Gaussians as
 indicated under Equation~\ref{eq:meas-mod-before-convolution}.
 Therefore, the term only consists of a product of Gaussians and
 Gaussians plus a constant. If we plug in
@@ -606,8 +607,7 @@ p(z_t|x_t,z_{t-1}) =
 with normalization constant $\eta$, smoothing factor $k$, and
 covariance matrix $\Sigma = 2\Sigma_e+\Sigma_r$. Again these constants
 and the function for $\Sigma_r$, which depends on the distance between
-sensor and tracked object, can be found by optimizing for a set of
-training data.
+sensor and tracked object, can be learned from training data.
 
 The computation with Equation~\ref{eq:mm-compute} works well if the
 point clouds $z_t$ and $z_{t-1}$ have a similar size. Because of
@@ -635,7 +635,7 @@ improves the performance in comparison to ICP which only uses the
 object shape and has no motion model.
 
 \subsubsection{Motion Model}
-For the motion model, we use a constant velocity model of a Kalman
+For the motion model, the authors use a constant velocity model of a Kalman
 filter~\cite{prob-rob}. In each iteration, the Kalman filter performs
 a measurement step and a motion step. In the measurement step, the algorithm
 is fed with a Gaussian that represents the
@@ -646,8 +646,9 @@ applied to the position of the object. Both steps are computed by
 combining two Gaussians. As a result, the algorithm gives a Gaussian
 for the position and motion of the object.
 
-We just need to give the algorithm a Gaussian for the measurement
-step. For this, we can use the results of the measurement model that
+For the measurement step, the algorithm requires a Gaussian distribution
+given as mean and covariance pair.
+For this, we can use the results of the measurement model that
 has to be represented as a Gaussian. This can be done by computing
 the mean $\mu_t$ and variance $\Sigma_t$ over all states weighted by
 their probability $p(x_t|z_1,...,z_t)$.
@@ -665,35 +666,35 @@ Section~\ref{sec:evaluation}, this model can be used to implement the
 tracker and yields reliable results. Although we also want to add
 color information to the model, this is important because color
 information is not always available (e.g. when the autonomous car is
-driving in the dark). To incorporate into the model, that the color of the
-surface points should match between two successive frames,
+driving in the dark). To incorporate color consistency between successive
+measurements into the model,
 we first need to learn the probability distribution of color
 matchings. This can be done by analyzing a dataset with already known
 alignments. For an autonomous car, such a dataset can be easily
 obtained by driving in a static environment (e.g. along a row of
 parked cars). The alignment of the tracked objects can then be
 computed with the speed of the car and the position of the tracked
-object relative to the car. For the analysis of color matchings, then
+object relative to the car. For the analysis of color matchings,
 the nearest points of two subsequent measurements can be used. It is
 reasonable to use only the correspondence pairs with a distance under
-a certain threshold ($5\mathrm{cm}$ was used by the authors of the
+a certain threshold ($5~\mathrm{cm}$ was used by the authors of the
 paper). Although it would be intuitive to use all available color
 channels, we use only the blue color channel. This simplifies the
 problem, because we do not need to learn the covariance between the
-color channels. The blue color channel was chosen by experiments with a
+color channels. The blue color channel was chosen experimentally with a
 validation set and already increases the performance of the
 method. The resulting distribution for color differences
 follows a Laplacian distribution.
 To include the color distribution into our measurement model, we
-extend the calculation of the term $p(s_{t,i}|s{t-1},V)$ what is
-intuitive because the color is a property of the surface and, to know
+extend the calculation of the term $p(s_{t,i}|s{t-1},V)$. This is
+intuitive, because the color is a property of the surface and to know
 the color, the point has to be visible in the previous frame:
 \begin{equation}
   p(s_{t,i}|s_{t-1},V) = p_s(s_{t,i}|s_{t-1},V) p_c(s_{t,i}|s_{t-1},V)
 \end{equation}
 where $p_s(s_{t,i}|s_{t-1},V)$ is the probability for the spatial
 matching as before and $p_c(s_{t,i}|s_{t-1},V)$ is the probability for
-the color match. For the term $p_c(s_{t,i}|s_{t-1},V)$, it does not
+the color match. For the term $p_c(s_{t,i}|s_{t-1},V)$ it does not
 suffice just to use the learned color model. This is due to changes in
 lighting, lens flare, and other cases that can change the observed
 colors significantly. Therefore, we need to introduce a probability
@@ -732,12 +733,12 @@ using the color probability
   = &p(C)p_c(z_{t,i}|\mathrm{ccp}(z_{t,i}),V,C)+\nonumber\\
   &p(\neg C)p_c(z_{t,i}|\mathrm{ccp}(z_{t,i}),V,\neg C)
 \end{align}
-what results in
+which results in
 \begin{equation}
 \label{eq:mm-color-compute}
 p(z_t|x_t,z_{t-1}) = \eta\left(\prod_{z_{t,i}\in z_t}
-p_s(z_{t,i}|x_t,z_t-1})p_c(z_{t,i}|x_t,z_t-1},V)
-+ k_3(k_4 - p_s(z_{t,i}|x_t,z_t-1}))
+p_s(z_{t,i}|x_t,z_{t-1})p_c(z_{t,i}|x_t,z_{t-1},V)
++ k_3(k_4 - p_s(z_{t,i}|x_t,z_{t-1}))
 \right)
 \mathrm{ . }
 \end{equation}
@@ -1059,18 +1060,16 @@ Figure~\ref{fig:rel-ref-frame-vel} and~\ref{fig:rel-ref-frame-rot}.
 \end{figure}
 
 To evaluate only the position and velocity estimation part of the
-tracking pipeline, some tracked objects over a number of successive
-frames, called tracks, are filtered out. About $7\%$ of the tracks
+tracking pipeline, some tracks are filtered out. About $7\%$ of the tracks
 were filtered out due to undersegmentation issues. Undersegmentation
 occurs when multiple nearby objects are not distinguished in the
 segmentation step and therefore wrongly detected as one object. These
 tracks are filtered out because of the ambiguity in the ground-truth
-velocity. Tracks with oversegmentation, where one object is split into
-multiple pieces, is not filtered out.
+velocity. Oversegmented tracks are not filtered out.
 
-We now compare the performance of the proposed tracking method with
-several widely used baseline methods. One the one hand, we compare the
-RMS error and on the other hand the mean runtime.
+We show the comparison of the performance of the proposed tracking method with
+several widely used baseline methods. One the one hand, the
+RMS errors and on the other hand the mean runtimes are compared.
 Figure~\ref{fig:rms-runtime} shows the results of the
 comparison. Plotted are RMS errors at different mean runtimes for the
 method presented in this report as well as for other baseline methods.
@@ -1106,12 +1105,12 @@ The algorithm ran with up to $100$ incremental
 alignment iterations. The RMS error with different mean runtimes is
 shown in Figure~\ref{fig:rms-runtime} and is about
 $1\mathrm{~m/s}$. This is $23\%$ worse than the RMS error of a simple
-Kalman filter and therefore no good tracking performance. This bad
+Kalman filter. This bad
 performance in comparison to the Kalman filter is caused by the
 missing motion model which is important for robust tracking. Without a
 motion model, only the last two frames can be used to estimate the
 velocity of the tracked object. Therefore, a single incorrect
-alignment as, for example, show in Figure~\ref{fig:icp} significantly
+alignment as in Figure~\ref{fig:icp} significantly
 impacts the tracking error. A Kalman filter with its motion model
 can refine the result of many more previous alignments into one
 Gaussian distribution and can compensate for wrong alignments because the
@@ -1120,10 +1119,10 @@ the measurement into the Kalman filter.
 
 By combining the Kalman filter and ICP into one method, the drawbacks
 of both methods can be removed. ICP can be used as measurement model
-to align the point clouds in successive frames what removes the
+to align the point clouds in successive frames which removes the
 information loss in the basic Kalman filter that only uses the
 centroid. The result can then be used in the motion model of another
-Kalman filter what increases the robustness against failures of
+Kalman filter which increases the robustness against failures of
 ICP. As initialization either the alignment of the centroids is used
 or the result of the Kalman filter that uses the centroids as
 described before.
@@ -1288,9 +1287,10 @@ optimum. The tracking method with annealed dynamic histograms performs
 best in all three object classes. Intuitively, it could be expected
 that the crispness score for cars would have to be better than for
 pedestrians and bicycles because of the static shape. However, this is
-not the case. The authors of the paper do not mention why. A possible
-explanation would be that the tracked cars have a higher velocity
-relative to the tracking car and thus the estimation is less accurate.
+not the case. The authors of the paper do not mention why. Possible
+explanations would be that the tracked cars have a higher velocity
+relative to the tracking car or that cars could be detected at larger
+distances. Both would make the estimation less accurate.
 The evaluation with the crispness score shows that the proposed
 tracking method performs better than all baseline methods across all
 object classes and with real-world data.
