@@ -48,7 +48,7 @@
   \item Help disabled persons
   \item Computers do not get\\tired or drunk
   \item Faster reaction time
-  \item[$\Rightarrow$] Safe 26k lifes per year in EU
+  \item[$\Rightarrow$] Safe 26k lives per year in EU
   \end{itemize}
   \end{description}
   \end{column}
@@ -192,7 +192,7 @@
   \frametitle{Baseline Methods}
   
   \begin{description}[]
-  \item[Iterative Clostest Point (ICP)] \hfill \\
+  \item[Iterative Closest Point (ICP)] \hfill \\
   \begin{itemize}
   \item Iterative hill climbing approach
   \item Minimizes quadratic distance of closest points
@@ -339,7 +339,7 @@
   \begin{description}[]
   \item[Measurement Model Computation] \hfill \\
   \begin{itemize}
-  \item $ccp(z_{t,i})$: closest corresponcence point in $z_{t-1}+x_{t,p}$
+  \item $ccp(z_{t,i})$: closest correspondence point in $z_{t-1}+x_{t,p}$
   \pause
   \item Covariance matrix $\Sigma = 2\Sigma_e+\Sigma_r$
   %say: sigma r funciton of distance
@@ -392,7 +392,7 @@ p_c(s_{t,i}|s_{t-1},V)
   \item[Motion Model] \hfill \\
   \begin{itemize}
   \item Take whole measurement history into account
-  \item Robustness against single unprecise alignments
+  \item Robustness against single imprecise alignments
   \pause
   \item Kalman filter with constant velocity model
   \item Measurement step: update with Gaussian distribution\\
@@ -417,7 +417,7 @@ p_c(s_{t,i}|s_{t-1},V)
   \pause
   \item[$\Rightarrow$] Use histogram
   \pause
-  \item[$\Rightarrow$] Too slow for neseccary resolution
+  \item[$\Rightarrow$] Too slow for necessary resolution
   \end{itemize}
   \end{description}
   \onslide<3->
@@ -436,7 +436,7 @@ p_c(s_{t,i}|s_{t-1},V)
   \begin{description}[]
   \item[In Real Time] \hfill \\
   \begin{itemize}
-  \item Densly sample only areas with high probability
+  \item Densely sample only areas with high probability
   \item Initial coarse resolution
   \item Stop at anytime during refinement
   \pause
@@ -502,22 +502,221 @@ p_c(s_{t,i}|s_{t-1},V)
 \section{Evaluation}
 \begin{frame}
   \frametitle{Evaluation}
+  \begin{description}[]
+  \item[What to evaluate] \hfill \\
   \begin{itemize}
-  \item Videos from website
-  \item Relative reference frame approach
-  \item Comparison with Kalman and ICP variants
-  \item Comparison ADH - densly sampling
-  \item Model Crispness approach
-  \item Provided Code, experiments
+  \item Precision of the position and velocity estimation
+  \item Root-Mean-Square error
+        $$e_{RMS}=\sqrt{\mathbb{E}((\hat{v}_t-v_t)^2)}$$
+  \item Runtime (real time requirements)
+  \item Comparison to baseline methods
+  \item[$\Rightarrow$] Need for test data
   \end{itemize}
+  \end{description}
+\end{frame}
+
+\section{Evaluation}
+\begin{frame}
+  \frametitle{Evaluation}
+  \begin{columns}
+  \begin{column}{0.6\textwidth}
+  \begin{description}[]
+  \item[Relative Reference Frame Approach] \hfill \\
+  \begin{itemize}
+  \item Record sensor data while driving
+  \item Static environment
+  \item Assume car is standing still
+  \pause
+  \item Compute ground truth position and velocity\\ from distance and car velocity
+  \onslide<1->
+  \end{itemize}
+  \end{description}
+  \end{column}
+  \begin{column}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{images/parking}\\
+  \includegraphics[width=\textwidth]{images/rel-ref-frame-path}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+\section{Evaluation}
+\begin{frame}
+  \frametitle{Evaluation}
+  \begin{columns}
+  \begin{column}{0.6\textwidth}
+  \begin{description}[]
+  \item[Kalman Filter] \hfill \\
+  \begin{itemize}
+  \item Imprecise but very fast
+  \end{itemize}
+  \pause
+  \item[ICP] \hfill \\
+  \begin{itemize}
+  \item Slow and very imprecise
+  \item Variants with motion model perform better
+  \end{itemize}
+  \pause
+  \item[ADH] \hfill \\
+  \begin{itemize}
+  \item Quick first result
+  \item Outperforms all baseline methods
+  \end{itemize}
+  \onslide<1->
+  \end{description}
+  \end{column}
+  \begin{column}{0.5\textwidth}
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=\textwidth]{../img/rms-vs-runtime}};
+    \node (descx) at (5.5,-0.2)
+    {\tiny \cite{paper}};
+  \end{tikzpicture}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluation}
+  \begin{description}[]
+  \item[ADH acceleration] \hfill \\
+  \begin{itemize}
+  \item[] 
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=0.6\textwidth]{../img/adh-dense-time}};
+    \node (descx) at (7,-0.2)
+    {\tiny \cite{paper}};
+  \end{tikzpicture}
+  \end{itemize}
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluation}
+  \begin{description}[]
+  \item[] \hfill \\
+  \begin{itemize}
+  \item Relative reference frame precise but not realistic
+  \end{itemize}
+  \pause
+  \item[Model Crispness Approach] \hfill \\
+  \begin{itemize}
+  \item Build a model of the tracked object
+  \item Union object point clouds over all frames
+  \item Point clouds aligned by position estimation
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=0.6\textwidth]{../img/build-models}};
+    \node (descx) at (7,-0.2)
+    {\tiny \cite{paper}};
+  \end{tikzpicture}
+  \item Record sensor data in real traffic
+  \onslide<1->
+  \end{itemize}
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluation}
+  \begin{description}[]
+  \item[Crispness Score] \hfill \\
+  \begin{itemize}
+  \item Measure for distinctness of the build model
+  \pause
+  \end{itemize}
+  \end{description}
+  \begin{columns}
+  \begin{column}{0.5\textwidth}
+  \center
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=0.5\textwidth,height=0.6\textwidth]{../img/model-adh}};
+    \node (descx) at (2.5,-0.2)
+    {\tiny \cite{paper}};
+  \end{tikzpicture}
+  \begin{itemize}
+  \item Presented tracker
+  \item High crispness score
+  \end{itemize}
+  \end{column}
+  \begin{column}{0.5\textwidth}
+  \center
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=0.5\textwidth,height=0.6\textwidth]{../img/model-icp}};
+    \node (descx) at (2.5,-0.2)
+    {\tiny \cite{paper}};
+  \end{tikzpicture}
+  \begin{itemize}
+  \item Kalman ICP tracker
+  \item Low crispness score
+  \end{itemize}
+  \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluation}
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=\textwidth]{../img/crispness-scores}};
+    \node (descx) at (10,-0.2)
+    {\tiny \cite{paper}};
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluation}
+  \begin{description}[]
+  \item[Improvement through color model] \hfill \\
+  \begin{itemize}
+  \item RMS error decreased by $10.4\%$
+  \item $p(C)$ very small (lens flare, heavy shadows)
+  \item Works robust through day-times and seasons
+  \end{itemize}
+  %% \item[Align smaller point cloud in larger one] \hfill \\
+  %% \begin{itemize}
+  %% \item RMS error decreased by $10\%$
+  %% \end{itemize}
+  \item[Source Code] \hfill \\
+  \begin{itemize}
+  \item Open Source\\
+        \url{http://stanford.edu/~davheld/anytime_tracking.html}
+  \item Easy to setup, integrate into C++
+  \item Test-data available
+  \end{itemize}
+  \item[Performance with stereo camera data?] \hfill \\
+  \begin{itemize}
+  \item Cheaper sensor, more noisy data
+  \item A lot of configuration values in the code
+  \end{itemize}
+  \end{description}
 \end{frame}
 
 \section{Conclusion}
 \begin{frame}
-  \frametitle{Conclusion}
+  \frametitle{Conclusion}       
+  \begin{block}{Combine 3D Shape, Color, Motion for Robust Anytime Tracking}
+    Precise and robust tracking is possible in real-time
+  \end{block}
   \begin{itemize}
-  \item Catch Phrase
-  \item Main Points
+  \item Measurement model combines 3D shape, Color, Motion
+  \item Derived from Dynamic Bayesian Network
+  \item Annealed Dynamic Histogram for global and fast search
+  \item Evaluation with local reference frame and model crispness
+  \item Outperforms baseline methods
   \end{itemize}
 \end{frame}
 
@@ -533,10 +732,13 @@ p_c(s_{t,i}|s_{t-1},V)
 \end{frame}
 
 \begin{frame}
-  \frametitle{Missing stuff}
+  \frametitle{Backup slide}
+  \begin{description}[]
+  \item[Crispness score formula] \hfill \\
   \begin{itemize}
-  \item related work: alternative sensors, grid-based methods
+  \item $$\frac{1}{T^2}\sum_{i=1}^T\sum_{j=1}^T\frac{1}{n_i}\sum_{k=1}^{n_i}G(x_k-\hat{x}_k,2\Sigma)$$
   \end{itemize}
+  \end{description}
 \end{frame}
 
 \backupend
