@@ -121,9 +121,23 @@
   \end{column}
   \onslide<1->
   \begin{column}{0.4\textwidth}
-  \includegraphics[width=\textwidth]{../img/lidar}\\
-\bigskip
-  \includegraphics[width=\textwidth]{../img/lidar-data}
+%%   \includegraphics[width=\textwidth]{../img/lidar}\\
+%% \bigskip
+%%   \includegraphics[width=\textwidth]{../img/lidar-data}
+
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+    \includegraphics[width=\textwidth]{../img/lidar}};
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,-3.3)
+    {
+    \includegraphics[width=\textwidth]{../img/lidar-data}};
+    \node (descx) at (4.7,-3.4)
+    {\tiny \cite{arbitrary-object-recognition}};
+    \onslide<1->
+  \end{tikzpicture}  
   \end{column}
   \end{columns}
 \end{frame}
@@ -359,8 +373,23 @@
   \nonumber
   $$
   \end{block}
-  %say: exchange z_t z_t-1 smaller set into larger one
-  %TODO: picture
+\end{frame}
+
+\begin{frame}
+  \frametitle{Probabilistic Model}
+  \begin{itemize}
+  \item Align smaller point cloud in larger one\\
+  \only<1>{\includegraphics[width=0.9\textwidth]{images/align-init}}
+  \only<2->{\includegraphics[width=0.9\textwidth]{images/align-small}}
+  \pause
+  \pause
+  \item Aligning larger point cloud in smaller one\\
+  \only<3>{\includegraphics[width=0.9\textwidth]{images/align-init}}
+  \onslide<4->{\includegraphics[width=0.9\textwidth]{images/align-larger}}
+  \pause
+  \pause
+  \item[$\Rightarrow$] Exchange $z_t$ and $z_{t-1}$ when $|z_t|>|z_{t-1}|$
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -515,7 +544,6 @@ p_c(s_{t,i}|s_{t-1},V)
   \end{description}
 \end{frame}
 
-\section{Evaluation}
 \begin{frame}
   \frametitle{Evaluation}
   \begin{columns}
@@ -534,12 +562,17 @@ p_c(s_{t,i}|s_{t-1},V)
   \end{column}
   \begin{column}{0.4\textwidth}
   \includegraphics[width=\textwidth]{images/parking}\\
-  \includegraphics[width=\textwidth]{images/rel-ref-frame-path}
+  \begin{tikzpicture}[thick, every node/.style={font=\footnotesize}]
+    \node (program) [outer sep=0,inner sep=0,anchor=south west]
+    at (0,0)
+    {
+      \includegraphics[width=\textwidth]{images/rel-ref-frame-path}};
+      \node (descx) at (4.5,-0.2){\tiny \cite{paper}};
+  \end{tikzpicture}
   \end{column}
   \end{columns}
 \end{frame}
 
-\section{Evaluation}
 \begin{frame}
   \frametitle{Evaluation}
   \begin{columns}
@@ -675,6 +708,10 @@ p_c(s_{t,i}|s_{t-1},V)
     \node (descx) at (10,-0.2)
     {\tiny \cite{paper}};
   \end{tikzpicture}
+  \begin{itemize}
+  \item Highest score for all object classes
+  \item Higher score for people than for cars
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -739,6 +776,22 @@ p_c(s_{t,i}|s_{t-1},V)
   \item $$\frac{1}{T^2}\sum_{i=1}^T\sum_{j=1}^T\frac{1}{n_i}\sum_{k=1}^{n_i}G(x_k-\hat{x}_k,2\Sigma)$$
   \end{itemize}
   \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Backup slide: RoboCup Logistics League}
+  \begin{columns}
+  \begin{column}{0.5\textwidth}
+  \center
+  \includegraphics[width=0.9\textwidth]{images/DSC_6148}\\  
+  \includegraphics[width=0.9\textwidth]{images/DSC_6497}  
+  \end{column}
+  \begin{column}{0.5\textwidth}
+  \center
+  \includegraphics[width=0.9\textwidth]{images/DSC_6846}\\
+  \includegraphics[width=0.9\textwidth]{images/preis}
+  \end{column}
+  \end{columns}
 \end{frame}
 
 \backupend
